@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+<defs>
+  <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4efe7"/><stop offset="1" stop-color="#e8e0d3"/></linearGradient>
+  <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9a47e"/><stop offset="1" stop-color="#a9825c"/></linearGradient>
+  <linearGradient id="view" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe0e8"/><stop offset="0.6" stop-color="#e6efe9"/><stop offset="1" stop-color="#9db48a"/></linearGradient>
+</defs>
+<rect width="1200" height="800" fill="url(#wall)"/>
+<path d="M0 560 L1200 560 L1200 800 L0 800 Z" fill="url(#floor)"/>
+<g stroke="#b48f69" stroke-width="2" opacity="0.5"><path d="M0 610H1200M0 670H1200M0 740H1200"/></g>
+<rect x="560" y="120" width="560" height="440" fill="url(#view)"/>
+<path d="M560 470 C 700 430, 850 480, 1120 440 V560 H560 Z" fill="#8fa77a"/>
+<g fill="#6f8a5d"><circle cx="720" cy="420" r="46"/><circle cx="1010" cy="400" r="60"/></g>
+<g fill="none" stroke="#3c3a36" stroke-width="10"><rect x="560" y="120" width="560" height="440"/><path d="M840 120V560"/></g>
+<rect x="80" y="170" width="320" height="200" fill="#d8cfc0"/>
+<rect x="100" y="190" width="280" height="160" fill="#8c9c8a"/>
+<path d="M130 330 L210 250 L270 300 L320 240 L360 330 Z" fill="#6d7f6b"/>
+<rect x="90" y="470" width="460" height="90" rx="18" fill="#5f6f7a"/>
+<rect x="90" y="420" width="460" height="70" rx="22" fill="#72838e"/>
+<rect x="70" y="440" width="50" height="120" rx="16" fill="#5a6974"/>
+<rect x="520" y="440" width="50" height="120" rx="16" fill="#5a6974"/>
+<rect x="170" y="600" width="300" height="24" rx="6" fill="#3c3a36"/>
+<rect x="190" y="624" width="12" height="70" fill="#3c3a36"/><rect x="438" y="624" width="12" height="70" fill="#3c3a36"/>
+<g transform="translate(980 560)"><rect x="-30" y="-60" width="60" height="60" rx="8" fill="#b9643f"/><path d="M0 -60 C -40 -140, -10 -190, 0 -230 C 20 -180, 50 -140, 0 -60" fill="#6f8a5d"/></g>
+<rect x="440" y="80" width="4" height="140" fill="#3c3a36"/><path d="M400 220 H484 L462 270 H422 Z" fill="#e7c98f"/>
+<g transform="translate(938 742)">
+  <rect width="238" height="36" rx="18" fill="#161615" opacity="0.72"/>
+  <text x="119" y="24" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="16" fill="#ffffff">Ilustración de ejemplo</text>
+</g>
+</svg>

@@ -1,0 +1,6 @@
+// Punto de entrada de estilos globales. El orden importa: primero los tokens, que
+// el tema de Material consume, después la base y por último las piezas comunes.
+@use 'styles/tokens';
+@use 'styles/theme';
+@use 'styles/base';
+@use 'styles/components';

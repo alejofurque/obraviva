@@ -1,0 +1,119 @@
+// Tokens de diseño de ObraViva.
+//
+// Única fuente de color, tipografía, espaciado y forma. Los componentes usan estas
+// variables y nunca valores sueltos: un hex escrito a mano en un componente es un
+// color que no cambia cuando cambia la paleta.
+//
+// La estética sigue el prototipo visual aprobado: fondo cálido, tinta casi negra,
+// acento verde oscuro, controles tipo píldora y superficies con radios amplios.
+//
+// Contrastes medidos contra WCAG, no estimados: todo texto sobre su fondo supera
+// 4.5:1 y los bordes de campo 3:1. Si se toca un color, se vuelve a medir.
+
+@use '@fontsource/ibm-plex-sans/latin-400.css';
+@use '@fontsource/ibm-plex-sans/latin-500.css';
+@use '@fontsource/ibm-plex-sans/latin-600.css';
+
+:root {
+  // --- Color base ---
+  --ov-canvas: #f5f5f2;
+  --ov-surface: #ffffff;
+  --ov-surface-muted: #ecebe7;
+  --ov-line: #e5e4df;
+  --ov-line-strong: #8f8e88;
+  --ov-ink: #161615;
+  --ov-ink-muted: #6b6a65;
+  --ov-ink-hover: #2b2b29;
+  --ov-on-ink: #ffffff;
+
+  // Verde de obra: marca, avance y lo que está en ejecución.
+  --ov-accent: #24503c;
+  --ov-accent-soft: #e4f0e8;
+
+  // Sobre fotografías: texto claro con un velo que garantiza el contraste. El velo arranca
+  // desde arriba y llega al 55% a media altura: aun sobre una pared blanca, la línea de
+  // texto de la portada llega a 5:1, cosa que el velo anterior (0% hasta la mitad) no daba.
+  --ov-on-media: #ffffff;
+  --ov-media-scrim: linear-gradient(180deg, rgb(0 0 0 / 0%) 0%, rgb(0 0 0 / 55%) 50%, rgb(0 0 0 / 70%) 100%);
+  --ov-on-media-muted: rgb(255 255 255 / 65%);
+  --ov-on-media-line: rgb(255 255 255 / 55%);
+  --ov-glass: rgb(40 40 38 / 60%);
+  --ov-veil: rgb(0 0 0 / 45%);
+  --ov-backdrop: rgb(0 0 0 / 80%);
+
+  // --- Estados de obra ---
+  // Nunca se usan solos: todo estado lleva además su nombre escrito.
+  --ov-status-in-progress: var(--ov-accent);
+  --ov-status-in-progress-soft: var(--ov-accent-soft);
+  --ov-status-completed: #5c5b57;
+  --ov-status-completed-soft: var(--ov-surface-muted);
+  --ov-status-pending: var(--ov-ink-muted);
+  --ov-status-pending-soft: transparent;
+  --ov-status-delayed: #8a4508;
+  --ov-status-delayed-soft: #fbebd9;
+  --ov-danger: #a8261b;
+  --ov-danger-soft: #fbe4e2;
+
+  // --- Tipografía ---
+  // Una sola familia en tres pesos. Sus cifras ya son de ancho fijo, así que las
+  // columnas de números alinean sin configuración.
+  --ov-font: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Serif de los títulos de la vista del comprador. Fraunces se carga sólo ahí (buyer-fonts). */
+  --ov-font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --ov-weight-regular: 400;
+  --ov-weight-medium: 500;
+  --ov-weight-semibold: 600;
+
+  --ov-text-xs: 0.75rem;
+  --ov-text-sm: 0.875rem;
+  --ov-text-md: 1rem;
+  --ov-text-lg: 1.25rem;
+  --ov-text-xl: 1.75rem;
+  --ov-text-2xl: 2.5rem;
+  --ov-text-display: clamp(2.5rem, 1.6rem + 3.6vw, 4.5rem);
+
+  --ov-leading-tight: 1.1;
+  --ov-leading-snug: 1.3;
+  --ov-leading-normal: 1.55;
+  --ov-tracking-display: -0.025em;
+  --ov-tracking-label: 0.12em;
+
+  // --- Espaciado ---
+  // Escala de 4 px. Cualquier margen o separación sale de acá.
+  --ov-space-1: 0.25rem;
+  --ov-space-2: 0.5rem;
+  --ov-space-3: 0.75rem;
+  --ov-space-4: 1rem;
+  --ov-space-5: 1.5rem;
+  --ov-space-6: 2rem;
+  --ov-space-7: 3rem;
+  --ov-space-8: 4rem;
+  --ov-space-9: 6rem;
+
+  // --- Forma ---
+  // Controles en píldora; superficies y fotografías con radio amplio.
+  --ov-radius-sm: 8px;
+  --ov-radius-md: 16px;
+  --ov-radius-lg: 24px;
+  --ov-radius-pill: 999px;
+
+  --ov-shadow-overlay: 0 12px 32px rgb(22 22 21 / 14%), 0 2px 8px rgb(22 22 21 / 8%);
+
+  // --- Disposición ---
+  --ov-content-max: 78rem;
+  --ov-reading-max: 42rem;
+  --ov-gutter: clamp(1rem, 0.5rem + 2.5vw, 3rem);
+  --ov-header-height: 4rem;
+
+  // --- Movimiento ---
+  --ov-ease: cubic-bezier(0.2, 0, 0, 1);
+  --ov-duration-fast: 120ms;
+  --ov-duration: 220ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ov-duration-fast: 0ms;
+    --ov-duration: 0ms;
+  }
+}

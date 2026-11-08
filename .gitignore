@@ -1,0 +1,42 @@
+﻿# Build
+target/
+dist/
+node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Sistema
+Thumbs.db
+.DS_Store
+
+# Capturas 3D: archivos pesados, no versionados
+*.spz
+*.ply
+
+# Video: material de origen y salidas de preprocesamiento
+*.mp4
+*.mov
+*.m4v
+*.avi
+
+# Secretos: claves de servicios externos. NUNCA versionar.
+.env
+*.env
+!.env.example
+
+# La captura de muestra de la demostracion, la unica que se versiona
+!obraviva-platform/src/main/resources/demo/*.spz
+
+# Archivos de trabajo: quedan en el disco de cada uno, no en el repositorio
+obraviva-viewer-sandbox/
+output/
+carga-inicial-*-dev.*
+import-spz-dev.ps1
+lan-on.ps1
+lan-off.ps1
+docs/diseno/
+docs/pendientes.md
+docs/pruebas-manuales.md

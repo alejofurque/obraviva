@@ -1,0 +1,81 @@
+// Tema de Angular Material montado sobre los tokens de ObraViva.
+//
+// Material genera su paleta a partir de una semilla, pero los colores del sistema se
+// sobrescriben con los tokens propios: así un componente de Material y uno escrito
+// a mano comparten exactamente el mismo azul, la misma línea y el mismo fondo.
+//
+// Las claves de theme-overrides que no existen se ignoran en silencio. Los nombres
+// de abajo están verificados contra los tokens M3 de la versión instalada.
+
+@use '@angular/material' as mat;
+
+html {
+  color-scheme: light;
+
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$blue-palette,
+        tertiary: mat.$blue-palette,
+        theme-type: light,
+      ),
+      typography: (
+        plain-family: ('IBM Plex Sans', system-ui, sans-serif),
+        brand-family: ('IBM Plex Sans', system-ui, sans-serif),
+        regular-weight: 400,
+        medium-weight: 500,
+        bold-weight: 600,
+      ),
+      density: 0,
+    )
+  );
+
+  @include mat.theme-overrides(
+    (
+      primary: var(--ov-accent),
+      on-primary: var(--ov-surface),
+      primary-container: var(--ov-accent-soft),
+      on-primary-container: var(--ov-accent),
+      secondary: var(--ov-ink-muted),
+      on-secondary: var(--ov-surface),
+      secondary-container: var(--ov-surface-muted),
+      on-secondary-container: var(--ov-ink),
+      background: var(--ov-canvas),
+      on-background: var(--ov-ink),
+      surface: var(--ov-surface),
+      on-surface: var(--ov-ink),
+      surface-variant: var(--ov-surface-muted),
+      on-surface-variant: var(--ov-ink-muted),
+      surface-bright: var(--ov-surface),
+      surface-container-lowest: var(--ov-surface),
+      surface-container-low: var(--ov-surface),
+      surface-container: var(--ov-surface),
+      surface-container-high: var(--ov-surface),
+      surface-container-highest: var(--ov-surface-muted),
+      outline: var(--ov-line-strong),
+      outline-variant: var(--ov-line),
+      error: var(--ov-danger),
+      on-error: var(--ov-surface),
+      error-container: var(--ov-danger-soft),
+      on-error-container: var(--ov-danger),
+      inverse-surface: var(--ov-ink),
+      inverse-on-surface: var(--ov-canvas),
+      corner-extra-small: var(--ov-radius-sm),
+      corner-small: var(--ov-radius-sm),
+      corner-medium: var(--ov-radius-md),
+      corner-large: var(--ov-radius-lg),
+      corner-extra-large: var(--ov-radius-lg),
+    )
+  );
+
+  // Los botones de Material que se usen quedan en píldora, igual que los propios.
+  @include mat.button-overrides(
+    (
+      filled-container-shape: var(--ov-radius-pill),
+      outlined-container-shape: var(--ov-radius-pill),
+      protected-container-shape: var(--ov-radius-pill),
+      text-container-shape: var(--ov-radius-pill),
+      tonal-container-shape: var(--ov-radius-pill),
+    )
+  );
+}

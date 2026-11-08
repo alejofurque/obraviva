@@ -1,0 +1,5 @@
+// Fraunces, la serif de los títulos de la vista del comprador y del ingreso. Hoja aparte, sin
+// inyectar (angular.json, inject: false): la agrega loadDisplayFont (shared/ui/display-font.ts) al
+// abrir esas pantallas, así el resto del sistema no la descarga. Local, como IBM Plex: la defensa
+// no depende de internet.
+@use '@fontsource/fraunces/latin-600.css';

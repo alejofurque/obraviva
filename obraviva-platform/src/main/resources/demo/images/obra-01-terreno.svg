@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cfdde6"/><stop offset="1" stop-color="#eef1ec"/>
+  </linearGradient>
+  <linearGradient id="skyWarm" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#e9d8bf"/><stop offset="1" stop-color="#f4ece0"/>
+  </linearGradient>
+  <linearGradient id="soil" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8a6a4c"/><stop offset="1" stop-color="#6d523a"/>
+  </linearGradient>
+  <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8fa77a"/><stop offset="1" stop-color="#6f8a5d"/>
+  </linearGradient>
+  <linearGradient id="concrete" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#c9c7c1"/><stop offset="1" stop-color="#a9a6a0"/>
+  </linearGradient>
+  <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#9fb4bf"/><stop offset="0.5" stop-color="#d6e1e5"/><stop offset="1" stop-color="#7f96a1"/>
+  </linearGradient>
+  <pattern id="brick" width="44" height="22" patternUnits="userSpaceOnUse">
+    <rect width="44" height="22" fill="#b9643f"/>
+    <path d="M0 0.5H44M0 11.5H44M22 0V11M0 11V22M44 11V22" stroke="#e4cdb8" stroke-width="2"/>
+  </pattern>
+  <pattern id="slats" width="14" height="10" patternUnits="userSpaceOnUse">
+    <rect width="14" height="10" fill="#9a6a43"/><rect width="4" height="10" fill="#7c5234"/>
+  </pattern>
+</defs>
+<rect width="1200" height="800" fill="url(#sky)"/>
+<path d="M0 530 C 200 470, 420 540, 640 490 S 1000 530, 1200 480 V 600 H 0 Z" fill="#b7c2b3" opacity="0.55"/>
+
+    <rect y="600" width="1200" height="200" fill="url(#soil)"/>
+    <path d="M240 640 H960 V 670 H240 Z" fill="#4f3a28"/>
+    <path d="M240 640 V 770 H270 V 670" fill="#4f3a28"/>
+    <path d="M930 670 V 770 H960 V 640" fill="#4f3a28"/>
+    <path d="M580 670 V 770 H610 V 670" fill="#4f3a28"/>
+    <rect x="237" y="584" width="6" height="50" fill="#d8b46a"/><rect x="237" y="584" width="6" height="10" fill="#c0392b"/><rect x="957" y="584" width="6" height="50" fill="#d8b46a"/><rect x="957" y="584" width="6" height="10" fill="#c0392b"/><rect x="237" y="734" width="6" height="50" fill="#d8b46a"/><rect x="237" y="734" width="6" height="10" fill="#c0392b"/><rect x="957" y="734" width="6" height="50" fill="#d8b46a"/><rect x="957" y="734" width="6" height="10" fill="#c0392b"/>
+    <path d="M240 590 L960 590 M240 590 L240 740" stroke="#f1f1f1" stroke-width="2"/>
+    <path d="M1010 610 q60 -90 130 0 z" fill="#7a5a3f"/>
+    <g transform="translate(90 530)">
+      <rect x="0" y="40" width="130" height="40" rx="6" fill="#e0a526"/>
+      <rect x="20" y="0" width="60" height="45" rx="4" fill="#e0a526"/><rect x="30" y="8" width="40" height="26" fill="#9fb4bf"/>
+      <path d="M125 50 L200 10 L240 60" stroke="#e0a526" stroke-width="14" fill="none"/>
+      <path d="M230 55 l30 25 h-40 z" fill="#5f6b73"/>
+      <rect x="-5" y="78" width="140" height="22" rx="11" fill="#3b3b3a"/>
+    </g>
+  
+<g transform="translate(938 742)">
+  <rect width="238" height="36" rx="18" fill="#161615" opacity="0.72"/>
+  <text x="119" y="24" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="16" fill="#ffffff">Ilustración de ejemplo</text>
+</g>
+</svg>

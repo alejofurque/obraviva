@@ -1,0 +1,179 @@
+spring:
+  application:
+    name: obraviva
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/obraviva
+    username: obraviva
+    password: obraviva_dev
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  web:
+    error:
+      # Sin esto, un 409 o un 400 llegan al cliente con el código pelado y sin el
+      # motivo: el mensaje de ResponseStatusException no se incluye por omisión.
+      # En Boot 4 la propiedad vive acá: 'server.error.include-message' quedó
+      # deprecada. El aviso lo dio el metadata del classpath, no la documentación.
+      include-message: always
+
+  ai:
+    model:
+      # En Spring AI 2.x el starter NO se activa por estar en el classpath.
+      # 'none' mantiene la autoconfiguración apagada mientras se trabaja contra los
+      # adaptadores simulados; cambiar a 'google-genai' para usar el proveedor real.
+      chat: none
+    google:
+      genai:
+        # NUNCA se escribe la clave acá: este archivo se versiona.
+        api-key: ${GEMINI_API_KEY:}
+        chat:
+          options:
+            # Los identificadores 1.x devuelven 404 y gemini-2.0-flash quedó
+            # descontinuado en febrero de 2026.
+            model: gemini-3.6-flash
+            temperature: 0.2
+            # La propiedad es max-output-tokens: con 'max-tokens' la salida queda
+            # sin tope en silencio.
+            max-output-tokens: 8192
+        # NO definir project-id ni location: cualquiera de las dos conmuta el
+        # cliente a modo Vertex AI y rechaza la clave del nivel gratuito con un
+        # error 400 que aparenta ser un problema de cuota.
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+obraviva:
+  ai:
+    transcription:
+      # Transcripción local con el filtro whisper de ffmpeg (whisper.cpp).
+      # El modelo pesa cientos de megabytes y NO se versiona: la ruta es propia
+      # de cada máquina y se define por variable de entorno.
+      # 'mock' no necesita ni ffmpeg ni el modelo: lo activa levantar.ps1 -Simulado.
+      provider: whisper
+      ffmpeg-path: ffmpeg
+      model-path: ${OBRAVIVA_WHISPER_MODEL:}
+      timeout-seconds: 300
+    extraction:
+      # Interpretación de la transcripción. 'mock' es el valor de trabajo diario
+      # y NO consume cuota del proveedor de modelo de lenguaje.
+      provider: mock
+      prompt-version: v1
+      model-id: gemini-3.6-flash
+    
+    sharing:
+    # Vigencia de las URLs firmadas que salen en la vista pública. Corta a propósito:
+    # una URL firmada sobrevive a la revocación del enlace que la originó, porque el
+    # almacenamiento no consulta nada al servirla. Esto acota esa ventana al tiempo
+    # que tarda el visor en descargar. El contenido privado del panel sigue usando
+    # download-url-ttl, que es largo.
+    asset-url-ttl: 5m
+
+  reports:
+    # Redacción del reporte de período. 'mock' es el valor de trabajo diario y NO
+    # consume cuota. Cambiar a 'gemini' junto con spring.ai.model.chat.
+    provider: mock
+    prompt-version: v1
+    model-id: gemini-3.6-flash
+
+  conversion:
+    # Conversión PLY -> SPZ. Los parámetros del formato (versión 2, calidad 5,
+    # corrección de orientación) son constantes del adaptador, no configuración:
+    # salieron de verificación experimental contra el visor.
+    gsbox-path: gsbox
+    timeout-seconds: 600
+    max-extracted-mb: 2048
+
+  dev-seed:
+    enabled: true
+    admin-email: admin@obraviva.local
+    admin-password: admin123
+    # La empresa de la instalación. ObraViva se instala para un desarrollista: la
+    # organización nace con la instalación y la interfaz no ofrece crear otras.
+    organization-name: Constructora Demo
+
+  demo-seed:
+    # Dos obras de ejemplo completas (ver DemoDataSeeder). Requiere dev-seed. Las
+    # cuentas de ejemplo usan esta contraseña: sólo para desarrollo.
+    enabled: ${OBRAVIVA_DEMO_SEED:false}
+    password: demo1234
+    # Captura SPZ para los recorridos. Ruta local de cada máquina: no se versiona con
+    # valor. Vacía = la muestra que viaja en demo/captura-muestra.spz.
+    splat-path: ${OBRAVIVA_DEMO_SPLAT:}
+
+  jobs:
+    # Workers de la cola de procesamiento. Los tests los desactivan para
+    # ejercitarlos de forma determinística.
+    enabled: true
+    poll-interval-ms: 10000
+    initial-delay-ms: 15000
+    # El servicio externo tarda entre 7 y 20 minutos: consultarlo cada 10 segundos
+    # serían más de cien llamadas inútiles por reconstrucción.
+    reconstruction-poll-interval-ms: 30000
+    reconstruction-initial-delay-ms: 20000
+    conversion-initial-delay-ms: 25000
+    # Los arranques se escalonan para que los workers no compitan por CPU y disco
+    # en el mismo instante al levantar la aplicación.
+    audio-initial-delay-ms: 30000
+    report-initial-delay-ms: 35000
+    max-attempts: 3
+    # Tope de espera del servicio externo. El corte es por tiempo y no por intentos:
+    # cada espera reinicia el contador a propósito.
+    max-external-wait-minutes: 120
+
+  reconstruction:
+    # 'mock' es el valor de trabajo diario y NO consume créditos.
+    # 'kiri' se activa con OBRAVIVA_RECONSTRUCTION_PROVIDER=kiri en .env, que no se
+    # versiona: así el proveedor real nunca queda activo en los tests ni en otra máquina
+    # por un commit. El presupuesto es de 10 créditos y la recarga mínima, de 500 USD.
+    provider: ${OBRAVIVA_RECONSTRUCTION_PROVIDER:mock}
+    mock:
+      polls-before-resolution: 2
+      outcome: SUCCESS
+      # Modelo de muestra para el desarrollo local: el resultado simulado empaqueta
+      # este PLY, lo que permite ejercitar la conversión real con gsbox y la
+      # publicación de la captura sin consumir créditos. Vacío = PLY mínimo, que
+      # gsbox rechaza. La ruta no se versiona con valor: es local de cada máquina.
+      sample-ply: ${OBRAVIVA_SAMPLE_PLY:}
+    kiri:
+      base-url: https://api.kiriengine.app/api
+      # La clave NUNCA se escribe acá: este archivo se versiona.
+      # Se define como variable de entorno en obraviva-platform/.env
+      api-key: ${KIRI_API_KEY:}
+      connect-timeout-seconds: 30
+      request-timeout-seconds: 60
+      upload-timeout-seconds: 900
+
+  security:
+    jwt:
+      # Secreto HMAC de DESARROLLO. Nunca commitear un secreto real de producción.
+      secret: "mRLlQ57UIQu/WcTiTBRvhOvskfuqqWZOI7QGTfpvvcAasA7L/Ag+V4Rn4vHjcx5SbQirxGkVvR/c97JfUJrEhA=="
+      access-token-ttl: 15m
+      refresh-token-ttl: 7d
+
+  storage:
+    endpoint: http://localhost:9000
+    region: us-east-1
+    access-key: minioadmin
+    secret-key: minioadmin
+    bucket: obraviva-media
+    upload-url-ttl: 15m
+    download-url-ttl: 1h
+    init-bucket: true
+
+  video:
+    # Límites del servicio externo de reconstrucción 3DGS.
+    ffmpeg-path: ffmpeg
+    ffprobe-path: ffprobe
+    max-width: 1920
+    max-height: 1080
+    max-duration-seconds: 180
+    min-duration-seconds: 20
+    probe-timeout-seconds: 60
+    transcode-timeout-seconds: 900

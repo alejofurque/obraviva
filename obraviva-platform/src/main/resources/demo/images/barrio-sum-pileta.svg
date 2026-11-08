@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9d8bf"/><stop offset="1" stop-color="#f4ece0"/></linearGradient>
+  <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fa77a"/><stop offset="1" stop-color="#6f8a5d"/></linearGradient>
+  <linearGradient id="water" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fc1d1"/><stop offset="1" stop-color="#4f9bb0"/></linearGradient>
+  <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9fb4bf"/><stop offset="0.5" stop-color="#d6e1e5"/><stop offset="1" stop-color="#7f96a1"/></linearGradient>
+</defs>
+<rect width="1200" height="800" fill="url(#sky)"/>
+<path d="M0 470 C 240 420, 520 480, 820 430 S 1100 470, 1200 440 V 520 H 0 Z" fill="#b7c2b3" opacity="0.6"/>
+<rect y="500" width="1200" height="300" fill="url(#grass)"/>
+<rect x="160" y="300" width="560" height="200" fill="#efece6"/>
+<rect x="120" y="280" width="640" height="26" fill="#d9d4c9"/>
+<rect x="190" y="340" width="480" height="140" fill="url(#glass)"/>
+<g stroke="#3c3a36" stroke-width="6"><path d="M310 340V480M430 340V480M550 340V480"/></g>
+<rect x="100" y="560" width="1000" height="150" fill="#e8e2d6"/>
+<rect x="160" y="585" width="880" height="100" rx="6" fill="url(#water)"/>
+<g stroke="#ffffff" stroke-width="3" opacity="0.55" fill="none"><path d="M200 620 q30 -10 60 0 t60 0 t60 0"/><path d="M620 650 q30 -10 60 0 t60 0 t60 0"/></g>
+<g transform="translate(900 500)"><rect x="-6" y="-120" width="12" height="120" fill="#6d523a"/><path d="M-110 -110 L0 -170 L110 -110 Z" fill="#e7c98f"/></g>
+<g transform="translate(1060 500)"><path d="M0 0 C -6 -60, 10 -110, -4 -170" stroke="#6d523a" stroke-width="14" fill="none"/><circle cx="-30" cy="-190" r="54" fill="#7f9468"/><circle cx="30" cy="-210" r="48" fill="#8fa77a"/></g>
+<g fill="#f7f5f1"><rect x="260" y="530" width="90" height="16" rx="8"/><rect x="400" y="530" width="90" height="16" rx="8"/></g>
+<g transform="translate(938 742)">
+  <rect width="238" height="36" rx="18" fill="#161615" opacity="0.72"/>
+  <text x="119" y="24" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="16" fill="#ffffff">Ilustración de ejemplo</text>
+</g>
+</svg>

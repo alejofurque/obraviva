@@ -1,0 +1,348 @@
+// Piezas visuales que se repiten en todas las pantallas: botones, campos, etiquetas,
+// superficies y la barra de avance. Son clases globales y no componentes porque son
+// estilo puro sobre elementos nativos: un <button> sigue siendo un <button>, con su
+// teclado y su accesibilidad, sin una capa de Angular encima.
+
+// --- Botones ---
+
+.ov-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ov-space-2);
+  min-height: 2.75rem;
+  padding: 0 var(--ov-space-5);
+  border: 1px solid transparent;
+  border-radius: var(--ov-radius-pill);
+  font: inherit;
+  font-size: var(--ov-text-md);
+  font-weight: var(--ov-weight-medium);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--ov-duration-fast) var(--ov-ease),
+    border-color var(--ov-duration-fast) var(--ov-ease),
+    opacity var(--ov-duration-fast) var(--ov-ease);
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .mat-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+.ov-btn--primary {
+  background: var(--ov-ink);
+  color: var(--ov-on-ink);
+
+  &:hover:not(:disabled) {
+    background: var(--ov-ink-hover);
+  }
+}
+
+.ov-btn--secondary {
+  background: var(--ov-surface);
+  border-color: var(--ov-line);
+  color: var(--ov-ink);
+
+  &:hover:not(:disabled) {
+    border-color: var(--ov-line-strong);
+  }
+}
+
+.ov-btn--on-media {
+  background: var(--ov-surface);
+  color: var(--ov-ink);
+}
+
+.ov-btn--block {
+  width: 100%;
+  min-height: 3.25rem;
+}
+
+// Enlace de texto: acción secundaria sin peso de botón.
+.ov-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ov-ink-muted);
+  font: inherit;
+  font-size: var(--ov-text-sm);
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--ov-ink);
+    text-decoration: underline;
+  }
+}
+
+// Área táctil de 44 px sin cambiar cómo se ve: una capa invisible centrada en el control
+// recibe el toque. La llevan los enlaces de texto y los controles chicos (`.ov-hit`). Usa
+// ::after; el ::before queda para la flecha de "‹ Volver".
+.ov-link:not(summary),
+.ov-tabs a,
+.ov-hit {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 2.75rem);
+    height: max(100%, 2.75rem);
+    transform: translate(-50%, -50%);
+  }
+}
+
+// Desplegable propio sobre <details>: sin el triángulo del navegador, con un chevrón que gira
+// al abrir y 44 px de alto para el dedo. El rótulo y su tamaño los pone quien lo usa.
+.ov-disclosure > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--ov-space-2);
+  min-height: 2.75rem;
+  list-style: none;
+  cursor: pointer;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &::after {
+    content: '';
+    flex: none;
+    width: 0.4em;
+    height: 0.4em;
+    margin: 0 0.15em;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-25%) rotate(45deg);
+    transition: transform var(--ov-duration) var(--ov-ease);
+  }
+}
+
+.ov-disclosure[open] > summary::after {
+  transform: translateY(25%) rotate(-135deg);
+}
+
+// El chevrón al borde derecho, para un desplegable que ocupa todo el ancho.
+.ov-disclosure--wide > summary::after {
+  margin-left: auto;
+}
+
+// --- Campos ---
+
+.ov-field {
+  display: grid;
+  gap: var(--ov-space-2);
+}
+
+.ov-input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 var(--ov-space-4);
+  border: 1px solid var(--ov-line);
+  border-radius: var(--ov-radius-pill);
+  background: var(--ov-surface);
+  color: var(--ov-ink);
+  font: inherit;
+  font-size: var(--ov-text-md);
+  transition: border-color var(--ov-duration-fast) var(--ov-ease);
+
+  &:hover {
+    border-color: var(--ov-line-strong);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ov-accent);
+    outline-offset: 1px;
+    border-color: var(--ov-accent);
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--ov-danger);
+  }
+}
+
+textarea.ov-input {
+  min-height: 7rem;
+  padding: var(--ov-space-3) var(--ov-space-4);
+  border-radius: var(--ov-radius-md);
+  resize: vertical;
+}
+
+// --- Texto ---
+
+// Etiqueta corta sobre un dato o un campo. En minúscula y sin espaciado de letras: se
+// lee como el rótulo de un formulario, no como un título de revista.
+// Títulos de la vista del comprador, en serif: sólo ahí se carga la fuente.
+.ov-display {
+  font-family: var(--ov-font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+}
+
+.ov-eyebrow {
+  margin: 0;
+  color: var(--ov-ink-muted);
+  font-size: var(--ov-text-sm);
+  font-weight: var(--ov-weight-medium);
+  letter-spacing: 0;
+}
+
+.ov-display {
+  margin: 0;
+  font-size: var(--ov-text-display);
+  font-weight: var(--ov-weight-semibold);
+  line-height: var(--ov-leading-tight);
+  letter-spacing: var(--ov-tracking-display);
+}
+
+.ov-lead {
+  color: var(--ov-ink-muted);
+  font-size: var(--ov-text-md);
+  line-height: var(--ov-leading-normal);
+}
+
+.ov-error {
+  margin: 0;
+  color: var(--ov-danger);
+  font-size: var(--ov-text-sm);
+}
+
+// --- Superficies ---
+
+.ov-card {
+  border: 1px solid var(--ov-line);
+  border-radius: var(--ov-radius-lg);
+  background: var(--ov-surface);
+}
+
+// Contenedor de página: ancho máximo y márgenes laterales que respiran en pantalla
+// grande y no desperdician espacio en el teléfono.
+.ov-page {
+  width: 100%;
+  max-width: var(--ov-content-max);
+  margin: 0 auto;
+  padding: var(--ov-space-7) var(--ov-gutter) var(--ov-space-9);
+}
+
+// Pantalla más angosta que el marco (un formulario, una lista para leer): se acota el
+// contenido a --ov-measure y no la página, así arranca en el mismo borde que el encabezado
+// en vez de quedar centrada y corrida.
+.ov-page--narrow > * {
+  max-width: var(--ov-measure, var(--ov-reading-max));
+}
+
+// --- Avance ---
+
+.ov-progress {
+  position: relative;
+  height: 3px;
+  overflow: hidden;
+  border-radius: var(--ov-radius-pill);
+  background: var(--ov-line);
+
+  > span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: inherit;
+    background: var(--ov-accent);
+    transition: width var(--ov-duration) var(--ov-ease);
+  }
+}
+
+// --- Píldoras de estado general ---
+
+// Estado de una obra o de un enlace, cuando no es un estado de etapa. Siempre con texto.
+.ov-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.625rem;
+  padding: 0 var(--ov-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--ov-radius-pill);
+  background: var(--ov-surface-muted);
+  color: var(--ov-status-completed);
+  font-size: var(--ov-text-xs);
+  font-weight: var(--ov-weight-semibold);
+  white-space: nowrap;
+}
+
+.ov-pill--accent {
+  background: var(--ov-accent-soft);
+  color: var(--ov-accent);
+}
+
+.ov-pill--outline {
+  background: transparent;
+  border-color: var(--ov-line);
+  color: var(--ov-ink-muted);
+}
+
+.ov-pill--danger {
+  background: var(--ov-danger-soft);
+  color: var(--ov-danger);
+}
+
+// --- Pestañas de sección ---
+
+.ov-tabs {
+  display: flex;
+  gap: var(--ov-space-6);
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  // Hay más pestañas de ese lado (`ScrollFadeDirective`): el borde se difumina.
+  &.fade-end {
+    mask-image: linear-gradient(to left, transparent, #000 2.5rem);
+  }
+
+  &.fade-start {
+    mask-image: linear-gradient(to right, transparent, #000 2.5rem);
+  }
+
+  &.fade-start.fade-end {
+    mask-image: linear-gradient(to right, transparent, #000 2.5rem, #000 calc(100% - 2.5rem), transparent);
+  }
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    border-bottom: 2px solid transparent;
+    color: var(--ov-ink-muted);
+    font-size: var(--ov-text-sm);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--ov-duration-fast) var(--ov-ease);
+
+    &:hover {
+      color: var(--ov-ink);
+    }
+
+    &.active {
+      border-bottom-color: var(--ov-ink);
+      color: var(--ov-ink);
+    }
+  }
+}
+
+// Marco de imagen con el radio amplio del sistema.
+.ov-media {
+  display: block;
+  width: 100%;
+  border-radius: var(--ov-radius-lg);
+  background: var(--ov-surface-muted);
+  object-fit: cover;
+}

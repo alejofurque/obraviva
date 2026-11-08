@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#cfdde6"/><stop offset="1" stop-color="#eef1ec"/>
+  </linearGradient>
+  <linearGradient id="skyWarm" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#e9d8bf"/><stop offset="1" stop-color="#f4ece0"/>
+  </linearGradient>
+  <linearGradient id="soil" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8a6a4c"/><stop offset="1" stop-color="#6d523a"/>
+  </linearGradient>
+  <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8fa77a"/><stop offset="1" stop-color="#6f8a5d"/>
+  </linearGradient>
+  <linearGradient id="concrete" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#c9c7c1"/><stop offset="1" stop-color="#a9a6a0"/>
+  </linearGradient>
+  <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#9fb4bf"/><stop offset="0.5" stop-color="#d6e1e5"/><stop offset="1" stop-color="#7f96a1"/>
+  </linearGradient>
+  <pattern id="brick" width="44" height="22" patternUnits="userSpaceOnUse">
+    <rect width="44" height="22" fill="#b9643f"/>
+    <path d="M0 0.5H44M0 11.5H44M22 0V11M0 11V22M44 11V22" stroke="#e4cdb8" stroke-width="2"/>
+  </pattern>
+  <pattern id="slats" width="14" height="10" patternUnits="userSpaceOnUse">
+    <rect width="14" height="10" fill="#9a6a43"/><rect width="4" height="10" fill="#7c5234"/>
+  </pattern>
+</defs>
+<rect width="1200" height="800" fill="#b9b4ab"/>
+<path d="M0 0 H1200 V120 H0 Z" fill="#d5d1c9"/>
+<path d="M0 620 L1200 620 L1200 800 L0 800 Z" fill="#8f8a82"/>
+<rect x="60" y="120" width="720" height="500" fill="#c9c3b8"/>
+<rect x="780" y="120" width="360" height="500" fill="url(#brick)"/>
+<rect x="160" y="210" width="260" height="210" fill="url(#skyWarm)"/><rect x="160" y="210" width="260" height="210" fill="none" stroke="#8f8a82" stroke-width="16"/>
+<path d="M520 120 V330 H640 M560 120 V250 M700 330 V620" stroke="#c0392b" stroke-width="8" fill="none" stroke-dasharray="14 6"/>
+<rect x="626" y="316" width="30" height="30" fill="#5f6b73"/><rect x="686" y="440" width="30" height="40" fill="#5f6b73"/>
+<path d="M860 620 V360 H1100 M900 620 V420 H1040" stroke="#6a7780" stroke-width="12" fill="none"/>
+<path d="M980 360 V260" stroke="#b87333" stroke-width="10" fill="none"/><circle cx="980" cy="252" r="12" fill="#b87333"/>
+<path d="M60 620 L520 620" stroke="#5a554e" stroke-width="4"/>
+<g transform="translate(938 742)">
+  <rect width="238" height="36" rx="18" fill="#161615" opacity="0.72"/>
+  <text x="119" y="24" text-anchor="middle" font-family="IBM Plex Sans, Segoe UI, sans-serif" font-size="16" fill="#ffffff">Ilustración de ejemplo</text>
+</g>
+</svg>

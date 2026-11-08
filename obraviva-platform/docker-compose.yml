@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: obraviva-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: obraviva
+      POSTGRES_USER: obraviva
+      POSTGRES_PASSWORD: obraviva_dev
+    ports:
+      # 5433 en el host: el 5432 lo usan Postgres de otros proyectos de la maquina.
+      - "5433:5432"
+    volumes:
+      - obraviva-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U obraviva -d obraviva"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    container_name: obraviva-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"   # API S3
+      - "9001:9001"   # Consola web
+    volumes:
+      - obraviva-minio:/data
+
+volumes:
+  obraviva-pgdata:
+  obraviva-minio:

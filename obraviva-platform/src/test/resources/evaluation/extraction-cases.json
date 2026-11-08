@@ -1,0 +1,27 @@
+{
+  "description": "Conjunto de evaluación de la extracción de partes de obra. Cada caso parte de una transcripción real producida por whisper (con sus errores) y declara la interpretación esperada, anotada a mano. Ver README.md en esta carpeta.",
+  "cases": [
+    {
+      "id": "caso-01-parte-semanal",
+      "notes": "Parte semanal típico. Transcripción real de audio de WhatsApp (Opus 48 kHz mono ~20 kb/s). Contiene tres errores de transcripción en vocabulario técnico que el modelo debe resolver por contexto: 'rego que gruesos' (revoque grueso), 'corrobados' (corrugados) y 'sin clima de compañía' (si el clima acompaña). Menciona una etapa existente y una inexistente, una demora atribuible a la etapa inexistente, y dos alertas de insumos.",
+      "transcript": "Hola, te mando el avance de esta semana. Terminamos el rego que gruesos los departamentos del segundo piso. Falta todavía la instalación eléctrica del tercero. Se demoró porque no llegaron los caños corrobados. La estructura del cuarto piso arranca el lunes sin clima de compañía. Necesitamos que confirmes la compra de los sanitarios antes del viernes.",
+      "stages": [
+        { "name": "Excavacion", "orderIndex": 1, "currentStatus": "COMPLETED" },
+        { "name": "Estructura", "orderIndex": 2, "currentStatus": "PENDING" }
+      ],
+      "expected": {
+        "stageProposals": [
+          {
+            "stageName": "Estructura",
+            "proposedStatus": "IN_PROGRESS",
+            "rationale": "El audio dice que la estructura del cuarto piso arranca el lunes. No corresponde DELAYED: la demora del audio es de la instalación eléctrica, que no es una etapa de este desarrollo."
+          }
+        ],
+        "minProgressNotes": 2,
+        "minSupplyAlerts": 2,
+        "expectedKeywords": ["revoque", "corrugado", "sanitario"],
+        "forbiddenStages": ["Excavacion"]
+      }
+    }
+  ]
+}
