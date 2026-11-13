@@ -27,8 +27,8 @@ public class VideoPreprocessingService {
     private static final Logger log = LoggerFactory.getLogger(VideoPreprocessingService.class);
 
     /**
-     * Pasos que este servicio sabe ejecutar. Los demás quedan sin reclamar hasta que
-     * exista quien los atienda (tarea 2.6c-3b).
+     * Pasos que este servicio sabe ejecutar. Los demás pasos del trabajo los toman otros
+     * workers.
      */
     private static final Set<PipelineStep> SUPPORTED_STEPS = Set.of(PipelineStep.PREPROCESS);
 

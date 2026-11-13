@@ -17,20 +17,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class AudioJobRecovery {
 
-    private final AudioExtractionService extractionService;
+    private final AudioExtractionJobService extractionJobs;
     private final boolean enabled;
 
     public AudioJobRecovery(
-            AudioExtractionService extractionService,
+            AudioExtractionJobService extractionJobs,
             @Value("${obraviva.jobs.enabled:true}") boolean enabled) {
-        this.extractionService = extractionService;
+        this.extractionJobs = extractionJobs;
         this.enabled = enabled;
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void recoverInterrupted() {
         if (enabled) {
-            extractionService.recoverInterruptedJobs();
+            extractionJobs.recoverInterruptedJobs();
         }
     }
 }

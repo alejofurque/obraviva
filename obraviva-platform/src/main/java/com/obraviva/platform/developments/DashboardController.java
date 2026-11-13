@@ -15,11 +15,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
+
+import static com.obraviva.platform.auth.CurrentUser.userId;
 
 @RestController
 @RequestMapping("/api")
@@ -37,7 +40,7 @@ public class DashboardController {
     public DashboardResponse dashboard(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID developmentId,
-            @org.springframework.web.bind.annotation.RequestParam(required = false) UUID unitId) {
+            @RequestParam(required = false) UUID unitId) {
         return dashboardService.dashboard(userId(jwt), developmentId, unitId);
     }
 
@@ -71,9 +74,5 @@ public class DashboardController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID expenseId) {
         expenseService.delete(userId(jwt), expenseId);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

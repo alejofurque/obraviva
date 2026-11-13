@@ -1,12 +1,11 @@
 package com.obraviva.platform.media.variants;
 
+import com.obraviva.platform.common.process.ProcessRunner;
 import com.obraviva.platform.media.MediaKind;
-import com.obraviva.platform.video.ffmpeg.ProcessRunner;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
+import javax.imageio.ImageIO;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -98,7 +99,7 @@ public class MediaCatalogService {
             UUID unitId,
             String sector,
             boolean showcase,
-            java.time.LocalDate takenOn,
+            LocalDate takenOn,
             /** Las versiones livianas; nulas mientras no estén: se usa el original. */
             String thumbStorageKey,
             String screenStorageKey) {

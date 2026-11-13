@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -79,7 +81,7 @@ public class MediaService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "La galería es de una casa y no de un avance");
         }
-        if (request.takenOn() != null && request.takenOn().isAfter(java.time.LocalDate.now())) {
+        if (request.takenOn() != null && request.takenOn().isAfter(LocalDate.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha de la foto no puede ser futura");
         }
         requireRoomForPhoto(organizationId, developmentId, request.progressEntryId(), kind);
@@ -152,7 +154,7 @@ public class MediaService {
     @Transactional
     public UUID importFile(
             UUID userId, UUID developmentId, UUID progressEntryId,
-            String filename, String contentType, java.nio.file.Path file) {
+            String filename, String contentType, Path file) {
         return importFile(userId, developmentId, progressEntryId, null, filename, contentType, file);
     }
 
@@ -160,7 +162,7 @@ public class MediaService {
     @Transactional
     public UUID importFile(
             UUID userId, UUID developmentId, UUID progressEntryId, UUID unitId,
-            String filename, String contentType, java.nio.file.Path file) {
+            String filename, String contentType, Path file) {
         UploadUrlResponse upload = requestUploadUrl(
                 userId, developmentId, new RequestUploadRequest(filename, contentType, progressEntryId, unitId));
         MediaAsset asset = mediaRepository.findById(upload.mediaId()).orElseThrow();
@@ -240,7 +242,7 @@ public class MediaService {
      * entra en "lugar por lugar" como cualquier foto de sesión. Es del dueño, como la galería.
      */
     @Transactional
-    public MediaAssetResponse moveToWork(UUID userId, UUID mediaId, String sector, java.time.LocalDate takenOn) {
+    public MediaAssetResponse moveToWork(UUID userId, UUID mediaId, String sector, LocalDate takenOn) {
         MediaAsset asset = requireAccessible(userId, mediaId);
         if (!membershipService.isOwnerOf(userId, asset.getOrganizationId())) {
             throw OrganizationMembershipService.ownerOnly();
@@ -251,7 +253,7 @@ public class MediaService {
         if (sector == null || sector.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Elegí el lugar de la casa donde se sacó la foto");
         }
-        if (takenOn == null || takenOn.isAfter(java.time.LocalDate.now())) {
+        if (takenOn == null || takenOn.isAfter(LocalDate.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha de la foto es obligatoria y no puede ser futura");
         }
         asset.assignSector(sectorService.requireSectorOf(asset.getUnitId(), sector));

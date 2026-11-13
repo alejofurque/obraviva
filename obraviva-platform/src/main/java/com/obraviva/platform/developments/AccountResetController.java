@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 /**
  * Reinicios de contraseña. La ruta del encargado cuelga de su organización y la del
  * comprador de su vínculo con la unidad, igual que el alta de cada uno.
@@ -41,9 +43,5 @@ public class AccountResetController {
             @PathVariable UUID memberId,
             @RequestBody(required = false) SetPasswordRequest request) {
         return resetService.resetUnitMember(userId(jwt), memberId, request == null ? null : request.password());
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

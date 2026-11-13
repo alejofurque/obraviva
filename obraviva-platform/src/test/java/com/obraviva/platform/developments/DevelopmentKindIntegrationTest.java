@@ -132,7 +132,7 @@ class DevelopmentKindIntegrationTest {
                             .header("Authorization", "Bearer " + token)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
-                                    {"names":["%s"]}""".formatted(zone)))
+                                    {"sectors":[{"name":"%s"}]}""".formatted(zone)))
                     .andExpect(status().isOk());
         }
         String created = ok(post("/api/developments/" + developmentId + "/captures"), """

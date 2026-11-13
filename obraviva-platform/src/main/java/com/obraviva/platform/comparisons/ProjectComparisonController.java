@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api")
 public class ProjectComparisonController {
@@ -71,9 +73,5 @@ public class ProjectComparisonController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID comparisonId) {
         comparisonService.delete(userId(jwt), comparisonId);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

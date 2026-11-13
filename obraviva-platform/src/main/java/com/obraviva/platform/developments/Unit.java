@@ -126,7 +126,7 @@ public class Unit {
 
     /** El día de la reserva o de la venta (V35). Nulo si está disponible o si no se cargó. */
     @Column(name = "sales_status_on")
-    private java.time.LocalDate salesStatusOn;
+    private LocalDate salesStatusOn;
 
     protected Unit() {
     }
@@ -260,7 +260,7 @@ public class Unit {
     }
 
     /** El estado y su día; disponible no tiene día. Quien llama ya validó que no sea futuro. */
-    public void changeSalesStatus(UnitSalesStatus status, java.time.LocalDate on) {
+    public void changeSalesStatus(UnitSalesStatus status, LocalDate on) {
         if (status == null) {
             throw new IllegalArgumentException("El estado comercial es obligatorio");
         }
@@ -268,7 +268,7 @@ public class Unit {
         this.salesStatusOn = status == UnitSalesStatus.AVAILABLE ? null : on;
     }
 
-    public java.time.LocalDate getSalesStatusOn() {
+    public LocalDate getSalesStatusOn() {
         return salesStatusOn;
     }
 

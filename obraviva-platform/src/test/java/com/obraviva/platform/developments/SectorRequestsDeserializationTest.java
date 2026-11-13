@@ -1,6 +1,5 @@
 package com.obraviva.platform.developments;
 
-import com.obraviva.platform.developments.CaptureSectorService.RenameSectorRequest;
 import com.obraviva.platform.developments.CaptureSectorService.ReplaceSectorsRequest;
 import com.obraviva.platform.media.MediaController.UpdateMediaSectorRequest;
 import org.junit.jupiter.api.DisplayName;
@@ -24,29 +23,14 @@ class SectorRequestsDeserializationTest {
                 {"sectors":[{"name":"Living","previousName":"Living y cocina"},{"name":"Quincho"}]}""",
                 ReplaceSectorsRequest.class);
 
-        assertThat(request.names()).isNull();
         assertThat(request.sectors()).hasSize(2);
         assertThat(request.sectors().get(0).previousName()).isEqualTo("Living y cocina");
         assertThat(request.sectors().get(1).previousName()).isNull();
     }
 
     @Test
-    @DisplayName("la forma anterior, con nombres, sigue valiendo")
-    void legacyNames() {
-        ReplaceSectorsRequest request = JSON.readValue("""
-                {"names":["Frente","Baño"]}""", ReplaceSectorsRequest.class);
-
-        assertThat(request.names()).containsExactly("Frente", "Baño");
-        assertThat(request.sectors()).isNull();
-    }
-
-    @Test
-    @DisplayName("renombrar y cambiar el sector de una foto, con nulo para General")
-    void renameAndPhotoSector() {
-        RenameSectorRequest rename = JSON.readValue("""
-                {"from":"Living y cocina","to":"Living"}""", RenameSectorRequest.class);
-        assertThat(rename.to()).isEqualTo("Living");
-
+    @DisplayName("cambiar el sector de una foto, con nulo para General")
+    void photoSector() {
         assertThat(JSON.readValue("""
                 {"sector":"Frente"}""", UpdateMediaSectorRequest.class).sector()).isEqualTo("Frente");
         assertThat(JSON.readValue("""

@@ -11,8 +11,6 @@ public interface ProcessingJobRepository extends JpaRepository<ProcessingJob, UU
 
     Optional<ProcessingJob> findByResourceId(UUID resourceId);
 
-    List<ProcessingJob> findByStatusOrderByCreatedAtAsc(JobStatus status);
-
     List<ProcessingJob> findByStatusAndJobTypeOrderByCreatedAtAsc(JobStatus status, JobType jobType);
 
     /** Trabajos de varios recursos en una sola consulta, acotados por organización. */

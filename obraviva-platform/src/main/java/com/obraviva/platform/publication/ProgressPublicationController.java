@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 /** Alta de avances, del dueño y del encargado: con fotos y cambio de etapa opcionales. */
 @RestController
 @RequestMapping("/api")
@@ -32,6 +34,6 @@ public class ProgressPublicationController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID developmentId,
             @Valid @RequestBody CreateProgressEntryRequest request) {
-        return publicationService.publish(UUID.fromString(jwt.getSubject()), developmentId, request);
+        return publicationService.publish(userId(jwt), developmentId, request);
     }
 }

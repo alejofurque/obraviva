@@ -1,4 +1,4 @@
-package com.obraviva.platform.video.ffmpeg;
+package com.obraviva.platform.common.process;
 
 import com.obraviva.platform.video.VideoProcessingException;
 

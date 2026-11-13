@@ -1,6 +1,7 @@
 package com.obraviva.platform.sharing;
 
 import com.obraviva.platform.captures3d.CaptureCatalogService;
+import com.obraviva.platform.comparisons.ComparisonCatalogService;
 import com.obraviva.platform.developments.CaptureSectorService;
 import com.obraviva.platform.developments.DevelopmentKind;
 import com.obraviva.platform.developments.StageCatalogService;
@@ -11,7 +12,6 @@ import com.obraviva.platform.media.MediaCatalogService.MediaSummary;
 import com.obraviva.platform.media.MediaKind;
 import com.obraviva.platform.media.variants.ImageVariants;
 import com.obraviva.platform.media.variants.ImageVariants.SignedImage;
-import com.obraviva.platform.comparisons.ComparisonCatalogService;
 import com.obraviva.platform.plans.FloorPlanCatalogService;
 import com.obraviva.platform.progress.ProgressService;
 import com.obraviva.platform.progress.ProgressService.ProgressSummary;
@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 /**
  * Arma la vista de una unidad. La usan el enlace público y "Mi propiedad".
@@ -170,7 +171,7 @@ public class UnitViewAssembler {
             }
         }
 
-        Map<UUID, ProgressService.StageChange> changes = progressService.stageChangesByRoot(unit.developmentId(), organizationIds);
+        Map<UUID, ProgressService.RecordedStageChange> changes = progressService.stageChangesByRoot(unit.developmentId(), organizationIds);
         List<PublicProgressEntry> timeline = entries.stream()
                 .map(entry -> new PublicProgressEntry(
                         entry.entryDate(),
@@ -218,8 +219,8 @@ public class UnitViewAssembler {
         // de la más vieja a la más nueva; las de toda la obra no son "de la casa".
         String frontSector = sectorService.frontOf(unit.id()).orElse(null);
         // Las portadas y los renders con sus versiones livianas, en una sola consulta.
-        ImageVariants.Images images = imageVariants.lookup(List.of(unit.organizationId()), java.util.stream.Stream.concat(
-                java.util.stream.Stream.of(unit.coverStorageKey(), unit.frontRenderStorageKey(), unit.development().coverStorageKey()),
+        ImageVariants.Images images = imageVariants.lookup(List.of(unit.organizationId()), Stream.concat(
+                Stream.of(unit.coverStorageKey(), unit.frontRenderStorageKey(), unit.development().coverStorageKey()),
                 visibleComparisons.stream().map(ComparisonCatalogService.CatalogComparison::renderStorageKey)).toList());
         SignedImage frontRender = images.sign(unit.frontRenderStorageKey(), assetTtl);
         PublicViewDtos.PublicFrontProject frontFallback = visibleComparisons.stream()
@@ -347,7 +348,7 @@ public class UnitViewAssembler {
                 detail == null ? null : detail.completedOn());
     }
 
-    private static PublicViewDtos.PublicStageChange stageChangeOf(ProgressService.StageChange change) {
+    private static PublicViewDtos.PublicStageChange stageChangeOf(ProgressService.RecordedStageChange change) {
         return change == null ? null : new PublicViewDtos.PublicStageChange(
                 change.percentBefore(), change.percentAfter(), change.statusBefore(), change.statusAfter());
     }

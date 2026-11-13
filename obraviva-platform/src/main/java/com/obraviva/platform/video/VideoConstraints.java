@@ -27,8 +27,4 @@ public record VideoConstraints(
             throw new IllegalArgumentException("La duración mínima debe ser menor que la máxima");
         }
     }
-
-    public static VideoConstraints defaults() {
-        return new VideoConstraints(1920, 1080, 180, 20, Duration.ofSeconds(60), Duration.ofSeconds(900));
-    }
 }

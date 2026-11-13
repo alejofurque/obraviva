@@ -39,7 +39,7 @@ public class AudioExtractionWorker {
 
     private static final Logger log = LoggerFactory.getLogger(AudioExtractionWorker.class);
 
-    private final AudioExtractionService extractionService;
+    private final AudioExtractionJobService extractionJobs;
     private final StorageService storageService;
     private final AudioTranscriber transcriber;
     private final ProgressExtractor progressExtractor;
@@ -48,14 +48,14 @@ public class AudioExtractionWorker {
     private final boolean enabled;
 
     public AudioExtractionWorker(
-            AudioExtractionService extractionService,
+            AudioExtractionJobService extractionJobs,
             StorageService storageService,
             AudioTranscriber transcriber,
             ProgressExtractor progressExtractor,
             ExtractionValidator validator,
             ProposalCodec proposalCodec,
             @Value("${obraviva.jobs.enabled:true}") boolean enabled) {
-        this.extractionService = extractionService;
+        this.extractionJobs = extractionJobs;
         this.storageService = storageService;
         this.transcriber = transcriber;
         this.progressExtractor = progressExtractor;
@@ -81,7 +81,7 @@ public class AudioExtractionWorker {
 
     /** Procesa un trabajo si hay alguno pendiente. Expuesto para poder ejercitarlo en tests. */
     public void processNext() {
-        Optional<AudioExtractionTask> task = extractionService.claimNext();
+        Optional<AudioExtractionTask> task = extractionJobs.claimNext();
         task.ifPresent(t -> {
             switch (t.step()) {
                 case TRANSCRIBE -> transcribe(t);
@@ -103,7 +103,7 @@ public class AudioExtractionWorker {
             storageService.download(task.audioKey(), audio);
 
             Transcription transcription = transcriber.transcribe(audio);
-            extractionService.recordTranscript(
+            extractionJobs.recordTranscript(
                     task.jobId(), task.extractionId(), transcription.text());
 
             log.info("Interpretación {}: {}", task.extractionId(), transcription.summary());
@@ -111,18 +111,18 @@ public class AudioExtractionWorker {
         } catch (InvalidAudioException e) {
             log.info("Audio de la interpretación {} rechazado: {}",
                     task.extractionId(), e.userMessage());
-            extractionService.recordInvalidInput(
+            extractionJobs.recordInvalidInput(
                     task.jobId(), task.extractionId(), e.userMessage());
 
         } catch (IOException e) {
             log.error("No se pudo crear el archivo temporal del trabajo {}", task.jobId(), e);
-            extractionService.recordTechnicalFailure(
+            extractionJobs.recordTechnicalFailure(
                     task.jobId(), task.extractionId(),
                     "Error de disco al preparar la transcripción: " + e.getMessage());
 
         } catch (RuntimeException e) {
             log.error("Fallo técnico transcribiendo la interpretación {}", task.extractionId(), e);
-            extractionService.recordTechnicalFailure(
+            extractionJobs.recordTechnicalFailure(
                     task.jobId(), task.extractionId(), String.valueOf(e.getMessage()));
 
         } finally {
@@ -138,7 +138,7 @@ public class AudioExtractionWorker {
 
         if (task.transcript() == null || task.transcript().isBlank()) {
             // No debería ocurrir: el paso previo guarda la transcripción antes de avanzar.
-            extractionService.recordInvalidInput(task.jobId(), task.extractionId(),
+            extractionJobs.recordInvalidInput(task.jobId(), task.extractionId(),
                     "No hay transcripción para interpretar");
             return;
         }
@@ -152,7 +152,7 @@ public class AudioExtractionWorker {
             AudioExtraction validated = validator.validate(raw, task.availableStages());
             String proposalJson = proposalCodec.encode(ExtractionProposal.from(validated));
 
-            extractionService.recordProposal(
+            extractionJobs.recordProposal(
                     task.jobId(),
                     task.extractionId(),
                     task.transcript(),
@@ -168,10 +168,10 @@ public class AudioExtractionWorker {
             // La respuesta cruda se guarda aunque el análisis haya fallado: sin ella
             // no hay forma de diagnosticar después qué devolvió el modelo.
             if (e.hasRawOutput()) {
-                extractionService.recordFailedOutput(
+                extractionJobs.recordFailedOutput(
                         task.jobId(), task.extractionId(), e.rawOutput(), e.getMessage());
             } else {
-                extractionService.recordTechnicalFailure(
+                extractionJobs.recordTechnicalFailure(
                         task.jobId(), task.extractionId(), e.getMessage());
             }
             log.error("Fallo interpretando la transcripción de {}: {}",
@@ -179,7 +179,7 @@ public class AudioExtractionWorker {
 
         } catch (RuntimeException e) {
             log.error("Fallo interpretando la transcripción de {}", task.extractionId(), e);
-            extractionService.recordTechnicalFailure(
+            extractionJobs.recordTechnicalFailure(
                     task.jobId(), task.extractionId(), String.valueOf(e.getMessage()));
         }
     }

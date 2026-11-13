@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api/developments")
 public class DevelopmentController {
@@ -69,10 +71,6 @@ public class DevelopmentController {
             @PathVariable UUID developmentId,
             @Valid @RequestBody UnitDetailsDtos.CreateUnitsBatchRequest request) {
         return developmentService.createUnits(userId(jwt), developmentId, request);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 
         @GetMapping("/{developmentId}/stages")

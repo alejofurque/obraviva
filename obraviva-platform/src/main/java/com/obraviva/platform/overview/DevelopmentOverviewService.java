@@ -10,15 +10,15 @@ import com.obraviva.platform.captures3d.CaptureDtos.CaptureResponse;
 import com.obraviva.platform.developments.DashboardDtos.DashboardResponse;
 import com.obraviva.platform.developments.DashboardDtos.TrafficLight;
 import com.obraviva.platform.developments.DashboardDtos.UnitDashboardRow;
-import com.obraviva.platform.developments.DevelopmentTeamDtos.TeamPerson;
-import com.obraviva.platform.developments.StageCatalogService;
-import com.obraviva.platform.developments.StageCatalogService.StageProgress;
-import com.obraviva.platform.developments.StageStatus;
 import com.obraviva.platform.developments.DashboardService;
 import com.obraviva.platform.developments.DevelopmentResponse;
 import com.obraviva.platform.developments.DevelopmentService;
+import com.obraviva.platform.developments.DevelopmentTeamDtos.TeamPerson;
 import com.obraviva.platform.developments.DevelopmentTeamService;
+import com.obraviva.platform.developments.StageCatalogService;
+import com.obraviva.platform.developments.StageCatalogService.StageProgress;
 import com.obraviva.platform.developments.StageResponse;
+import com.obraviva.platform.developments.StageStatus;
 import com.obraviva.platform.developments.UnitResponse;
 import com.obraviva.platform.developments.UnitSalesStatus;
 import com.obraviva.platform.developments.UnitStageService;
@@ -39,13 +39,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Qué tiene un desarrollo o una casa y qué le falta, en una sola lectura.
@@ -155,7 +156,7 @@ public class DevelopmentOverviewService {
                                    DashboardResponse panel, List<TeamPerson> assigned) {
         boolean owner = panel != null;
         Map<UUID, UnitDashboardRow> rows = owner
-                ? panel.units().stream().collect(java.util.stream.Collectors.toMap(UnitDashboardRow::unitId, row -> row))
+                ? panel.units().stream().collect(Collectors.toMap(UnitDashboardRow::unitId, row -> row))
                 : Map.of();
         return units.stream().map(unit -> {
             List<StageResponse> unitStageList = unitStages.list(userId, unit.id());

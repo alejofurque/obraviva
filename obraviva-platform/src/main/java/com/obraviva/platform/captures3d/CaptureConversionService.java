@@ -1,6 +1,5 @@
 package com.obraviva.platform.captures3d;
 
-import com.obraviva.platform.jobs.JobStatus;
 import com.obraviva.platform.jobs.JobType;
 import com.obraviva.platform.jobs.PipelineStep;
 import com.obraviva.platform.jobs.ProcessingJob;
@@ -107,11 +106,5 @@ public class CaptureConversionService {
     @Transactional
     public void recordTechnicalFailure(UUID jobId, String error) {
         jobService.retryOrFail(jobId, error, maxAttempts);
-    }
-
-    /** Estado del trabajo, para verificación en tests. */
-    @Transactional(readOnly = true)
-    public Optional<JobStatus> statusOf(UUID resourceId) {
-        return jobService.findByResource(resourceId).map(ProcessingJob::getStatus);
     }
 }

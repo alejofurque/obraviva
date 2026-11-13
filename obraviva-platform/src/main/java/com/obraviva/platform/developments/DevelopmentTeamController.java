@@ -9,11 +9,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
+
+import static com.obraviva.platform.auth.CurrentUser.userId;
 
 @RestController
 @RequestMapping("/api/developments/{developmentId}/team")
@@ -39,7 +42,7 @@ public class DevelopmentTeamController {
     }
 
     /** En qué casas trabaja: vacío, todo el desarrollo. */
-    @org.springframework.web.bind.annotation.PutMapping("/{supervisorId}")
+    @PutMapping("/{supervisorId}")
     public DevelopmentTeamResponse changeScope(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID developmentId,
@@ -54,9 +57,5 @@ public class DevelopmentTeamController {
             @PathVariable UUID developmentId,
             @PathVariable UUID supervisorId) {
         return teamService.unassign(userId(jwt), developmentId, supervisorId);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

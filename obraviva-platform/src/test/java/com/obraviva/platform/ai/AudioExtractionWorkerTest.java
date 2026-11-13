@@ -7,6 +7,7 @@ import com.obraviva.platform.ai.extraction.ExtractionException;
 import com.obraviva.platform.ai.extraction.ProgressExtractor;
 import com.obraviva.platform.ai.extraction.ReviewStatus;
 import com.obraviva.platform.ai.transcription.AudioTranscriber;
+import com.obraviva.platform.ai.transcription.InvalidAudioException;
 import com.obraviva.platform.ai.transcription.Transcription;
 import com.obraviva.platform.ai.transcription.TranscriptionException;
 import com.obraviva.platform.auth.User;
@@ -94,9 +95,10 @@ class AudioExtractionWorkerTest {
     @Autowired private AiExtractionRepository extractionRepository;
     @Autowired private ProcessingJobRepository jobRepository;
     @Autowired private ProcessingJobService jobService;
-    @Autowired private AudioExtractionService extractionService;
+    @Autowired private AudioExtractionJobService extractionJobs;
 
     private UUID extractionId;
+    private String token;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -110,7 +112,7 @@ class AudioExtractionWorkerTest {
 
         String email = "audio-worker-" + UUID.randomUUID() + "@obraviva.test";
         userRepository.save(new User(email, passwordEncoder.encode(PASSWORD), "Usuario Audio"));
-        String token = login(email);
+        token = login(email);
 
         String orgResponse = mockMvc.perform(post("/api/organizations")
                         .header("Authorization", "Bearer " + token)
@@ -240,6 +242,51 @@ class AudioExtractionWorkerTest {
         verify(progressExtractor, never()).extract(any());
     }
 
+    @Test
+    @DisplayName("un audio que no sirve falla al primer intento, con el mensaje para el revisor")
+    void invalidAudioFailsWithoutRetrying() {
+        when(transcriber.transcribe(any())).thenThrow(new InvalidAudioException(
+                InvalidAudioException.Reason.NO_SPEECH_DETECTED, "No se reconoció ninguna voz en el audio"));
+
+        worker.processNext();
+        worker.processNext();   // no hay nada que tomar: no se reintenta
+
+        verify(transcriber, times(1)).transcribe(any());
+        verify(progressExtractor, never()).extract(any());
+
+        AiExtraction extraction = extractionRepository.findById(extractionId).orElseThrow();
+        assertThat(extraction.getReviewStatus()).isEqualTo(ReviewStatus.FAILED);
+        assertThat(extraction.getReviewNotes()).isEqualTo("No se reconoció ninguna voz en el audio");
+
+        ProcessingJob job = jobService.findByResource(extractionId).orElseThrow();
+        assertThat(job.getStatus()).isEqualTo(JobStatus.FAILED);
+        assertThat(job.getAttempts()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("un trabajo que apunta a una interpretación de otra organización se descarta sin tocarla")
+    void jobOfAnotherOrganizationIsDiscarded() throws Exception {
+        String otherOrganization = mockMvc.perform(post("/api/organizations")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JSON.writeValueAsString(new CreateOrganizationRequest("Constructora Ajena"))))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        jobRepository.deleteAll();
+        jobService.create(UUID.fromString(JSON.readTree(otherOrganization).get("id").asString()),
+                JobType.AUDIO_EXTRACTION, extractionId);
+        jobService.markReady(extractionId);
+
+        worker.processNext();
+
+        verify(transcriber, never()).transcribe(any());
+        ProcessingJob job = jobService.findByResource(extractionId).orElseThrow();
+        assertThat(job.getStatus()).isEqualTo(JobStatus.FAILED);
+        assertThat(job.getLastError()).contains("no pertenece a la organización");
+        assertThat(extractionRepository.findById(extractionId).orElseThrow().getReviewStatus())
+                .isEqualTo(ReviewStatus.PENDING);
+    }
+
     // --- Trabajos interrumpidos ---
 
     @Test
@@ -249,7 +296,7 @@ class AudioExtractionWorkerTest {
         jobService.claimNext(JobType.AUDIO_EXTRACTION, Set.of(PipelineStep.TRANSCRIBE)).orElseThrow();
         assertThat(jobService.findByResource(extractionId).orElseThrow().getStatus()).isEqualTo(JobStatus.PROCESSING);
 
-        assertThat(extractionService.recoverInterruptedJobs()).isEqualTo(1);
+        assertThat(extractionJobs.recoverInterruptedJobs()).isEqualTo(1);
 
         ProcessingJob job = jobService.findByResource(extractionId).orElseThrow();
         assertThat(job.getStatus()).isEqualTo(JobStatus.PENDING);
@@ -273,9 +320,9 @@ class AudioExtractionWorkerTest {
     void interruptedLastAttemptFailsTheExtraction() {
         // max-attempts=2: dos tomas cortadas agotan los intentos del paso.
         jobService.claimNext(JobType.AUDIO_EXTRACTION, Set.of(PipelineStep.TRANSCRIBE)).orElseThrow();
-        extractionService.recoverInterruptedJobs();
+        extractionJobs.recoverInterruptedJobs();
         jobService.claimNext(JobType.AUDIO_EXTRACTION, Set.of(PipelineStep.TRANSCRIBE)).orElseThrow();
-        extractionService.recoverInterruptedJobs();
+        extractionJobs.recoverInterruptedJobs();
 
         assertThat(jobService.findByResource(extractionId).orElseThrow().getStatus()).isEqualTo(JobStatus.FAILED);
         AiExtraction extraction = extractionRepository.findById(extractionId).orElseThrow();
@@ -287,7 +334,7 @@ class AudioExtractionWorkerTest {
     @Test
     @DisplayName("sin trabajos tomados, arrancar no toca nada")
     void nothingToRecover() {
-        assertThat(extractionService.recoverInterruptedJobs()).isZero();
+        assertThat(extractionJobs.recoverInterruptedJobs()).isZero();
 
         ProcessingJob job = jobService.findByResource(extractionId).orElseThrow();
         assertThat(job.getStatus()).isEqualTo(JobStatus.PENDING);

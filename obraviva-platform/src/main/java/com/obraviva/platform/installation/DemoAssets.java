@@ -7,7 +7,6 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
 
-import javax.imageio.ImageIO;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -19,7 +18,9 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import javax.imageio.ImageIO;
 
 /**
  * Archivos de ejemplo generados al vuelo: un plano en PDF, un documento en PDF y un render
@@ -216,7 +217,7 @@ final class DemoAssets {
     }
 
     private static List<String> wrap(String paragraph, int maxChars) {
-        List<String> lines = new java.util.ArrayList<>();
+        List<String> lines = new ArrayList<>();
         StringBuilder current = new StringBuilder();
         for (String word : paragraph.split(" ")) {
             if (current.length() + word.length() + 1 > maxChars && !current.isEmpty()) {

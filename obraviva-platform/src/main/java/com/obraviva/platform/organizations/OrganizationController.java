@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api/organizations")
 public class OrganizationController {
@@ -67,9 +69,5 @@ public class OrganizationController {
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody CreateOrganizationRequest request) {
         return organizationService.create(userId(jwt), request);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

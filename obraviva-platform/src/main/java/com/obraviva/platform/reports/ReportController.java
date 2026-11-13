@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api")
 public class ReportController {
@@ -78,9 +80,5 @@ public class ReportController {
             @PathVariable UUID reportId,
             @Valid @RequestBody RejectReportRequest request) {
         return reportService.reject(userId(jwt), reportId, request);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

@@ -1,15 +1,16 @@
 package com.obraviva.platform.developments;
 
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public final class UnitDetailsDtos {
     }
 
     /** {@code on}: el día de la reserva o la venta; sin él, hoy. Disponible no lleva día. */
-    public record UpdateSalesStatusRequest(@NotNull UnitSalesStatus status, java.time.LocalDate on) {
+    public record UpdateSalesStatusRequest(@NotNull UnitSalesStatus status, LocalDate on) {
     }
 
     /** Casas en lote: "Casa 1" a "Casa 10" con prefijo "Casa", primer número 1 y cantidad 10. */

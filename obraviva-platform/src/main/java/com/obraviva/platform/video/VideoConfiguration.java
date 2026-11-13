@@ -1,7 +1,7 @@
 package com.obraviva.platform.video;
 
+import com.obraviva.platform.common.process.ProcessRunner;
 import com.obraviva.platform.video.ffmpeg.FfmpegVideoProcessor;
-import com.obraviva.platform.video.ffmpeg.ProcessRunner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

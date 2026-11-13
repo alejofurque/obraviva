@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -40,7 +41,7 @@ public class MediaAsset {
 
     /** Día en que se sacó: el de la sesión de recorrido. Nulo: el de su avance o el de la subida. */
     @Column(name = "taken_on")
-    private java.time.LocalDate takenOn;
+    private LocalDate takenOn;
 
     @Column(name = "storage_key", nullable = false, unique = true)
     private String storageKey;
@@ -125,7 +126,7 @@ public class MediaAsset {
         return sector;
     }
 
-    public void classify(boolean showcase, java.time.LocalDate takenOn) {
+    public void classify(boolean showcase, LocalDate takenOn) {
         this.showcase = showcase;
         this.takenOn = takenOn;
     }
@@ -134,7 +135,7 @@ public class MediaAsset {
         return showcase;
     }
 
-    public java.time.LocalDate getTakenOn() {
+    public LocalDate getTakenOn() {
         return takenOn;
     }
 

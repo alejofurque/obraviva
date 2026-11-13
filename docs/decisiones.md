@@ -140,7 +140,7 @@ proyecto no es que funcione, es por qué está resuelto de esta manera.
 - **Convención de claves, generada en la entidad y nunca reconstruida por un worker:**
   - `developments/{devId}/media|captures|videos|audios/{id}.{ext}`
   - `.../videos/{id}-normalized.mp4` · `.../captures/{id}-result.zip` · `.../captures/{id}.spz`
-- Los tests que dependen de almacenamiento mockean `StorageService`, salvo `StorageTransferIntegrationTest`, que **requiere MinIO corriendo**: mockear el SDK verificaría el mock, no el protocolo.
+- Los tests que dependen de almacenamiento mockean `StorageService`, salvo `StorageTransferIntegrationTest`, que mueve bytes contra un MinIO real: mockear el SDK verificaría el mock, no el protocolo. Ese MinIO, y el de los tests que arrancan con el bucket, es el de la suite (`support/TestMinio`, Testcontainers), nunca el de desarrollo.
 
 ### Frontend
 

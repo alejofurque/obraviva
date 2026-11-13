@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api")
 public class ShareLinkController {
@@ -49,9 +51,5 @@ public class ShareLinkController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID linkId) {
         return shareLinkService.revoke(userId(jwt), linkId);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

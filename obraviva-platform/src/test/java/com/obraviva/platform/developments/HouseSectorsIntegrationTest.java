@@ -129,8 +129,7 @@ class HouseSectorsIntegrationTest {
         UUID capture2 = capture(ownerToken, casa2, "Living y cocina", "2026-09-01");
         UUID sectorId = sectorId(casa1, "Living y cocina");
 
-        JsonNode sectors = json(ok(send(ownerToken, patch("/api/units/" + casa1 + "/sectors/rename"), """
-                {"from":"Living y cocina","to":"Living"}""")));
+        JsonNode sectors = json(ok(send(ownerToken, put("/api/units/" + casa1 + "/sectors"), renamed("Living y cocina", "Living"))));
 
         assertThat(texts(sectors)).containsExactly("Frente", "Living", "Dormitorio principal", "Baño");
         assertThat(sectorId(casa1, "Living")).isEqualTo(sectorId);
@@ -141,17 +140,22 @@ class HouseSectorsIntegrationTest {
     }
 
     @Test
-    @DisplayName("renombrar a un sector que ya existe da 409; el encargado no renombra (403) y otra organización no llega (404)")
+    @DisplayName("renombrar a un sector que ya existe da 400; el encargado no renombra (403) y otra organización no llega (404)")
     void renameConflictsAndPermissions() throws Exception {
-        send(ownerToken, patch("/api/units/" + casa1 + "/sectors/rename"), """
-                {"from":"Baño","to":"frente"}""").andExpect(status().isConflict());
-        send(supervisorToken, patch("/api/units/" + casa1 + "/sectors/rename"), """
-                {"from":"Baño","to":"Baño principal"}""").andExpect(status().isForbidden());
-        send(outsiderToken, patch("/api/units/" + casa1 + "/sectors/rename"), """
-                {"from":"Baño","to":"Baño principal"}""").andExpect(status().isNotFound());
+        send(ownerToken, put("/api/units/" + casa1 + "/sectors"), renamed("Baño", "frente")).andExpect(status().isBadRequest());
+        send(supervisorToken, put("/api/units/" + casa1 + "/sectors"), renamed("Baño", "Baño principal")).andExpect(status().isForbidden());
+        send(outsiderToken, put("/api/units/" + casa1 + "/sectors"), renamed("Baño", "Baño principal")).andExpect(status().isNotFound());
         // Cambiar sólo mayúsculas es un renombre de sí mismo, no un choque.
-        assertThat(texts(json(ok(send(ownerToken, patch("/api/units/" + casa1 + "/sectors/rename"), """
-                {"from":"Baño","to":"baño"}"""))))).contains("baño");
+        assertThat(texts(json(ok(send(ownerToken, put("/api/units/" + casa1 + "/sectors"), renamed("Baño", "baño")))))).contains("baño");
+    }
+
+    /** Los sectores de la plantilla de la Casa 1 con uno renombrado, como los manda el editor. */
+    private static String renamed(String from, String to) {
+        List<String> rows = new ArrayList<>();
+        for (String name : List.of("Frente", "Living y cocina", "Dormitorio principal", "Baño")) {
+            rows.add("{\"name\":\"%s\",\"previousName\":\"%s\"}".formatted(name.equals(from) ? to : name, name));
+        }
+        return "{\"sectors\":[" + String.join(",", rows) + "]}";
     }
 
     // --- Cambiar sectores por diferencias ---
@@ -191,14 +195,11 @@ class HouseSectorsIntegrationTest {
                 .andExpect(status().isConflict())
                 .andReturn().getResponse().getErrorMessage();
         assertThat(message).isEqualTo("Frente tiene 2 fotos y 1 recorrido: renombralo o movelos antes de quitarlo.");
-        // La forma vieja, con nombres, tampoco puede dejar material colgado.
-        send(ownerToken, put("/api/units/" + casa1 + "/sectors"), """
-                {"names":["Baño","Living y cocina"]}""").andExpect(status().isConflict());
         assertThat(texts(json(ok(send(ownerToken, get("/api/units/" + casa1 + "/sectors"))))))
                 .containsExactly("Frente", "Living y cocina", "Dormitorio principal", "Baño");
 
         assertThat(texts(json(ok(send(ownerToken, put("/api/units/" + casa1 + "/sectors"), """
-                {"names":["Frente","Baño"]}"""))))).containsExactly("Frente", "Baño");
+                {"sectors":[{"name":"Frente","previousName":"Frente"},{"name":"Baño","previousName":"Baño"}]}"""))))).containsExactly("Frente", "Baño");
     }
 
     // --- El sector de una foto ---
@@ -367,8 +368,7 @@ class HouseSectorsIntegrationTest {
         assertThat(detail.get(0).get("front").asBoolean()).isTrue();
         assertThat(detail.get(1).get("front").asBoolean()).isFalse();
 
-        ok(send(ownerToken, patch("/api/units/" + casa1 + "/sectors/rename"), """
-                {"from":"Frente","to":"Frente de la casa"}"""));
+        ok(send(ownerToken, put("/api/units/" + casa1 + "/sectors"), renamed("Frente", "Frente de la casa")));
 
         String token = json(ok(send(ownerToken, post("/api/units/" + casa1 + "/share-links"), """
                 {"label":"Familia"}"""))).get("token").asString();

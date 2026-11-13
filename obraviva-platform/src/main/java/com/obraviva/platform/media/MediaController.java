@@ -1,11 +1,13 @@
 package com.obraviva.platform.media;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+
+import static com.obraviva.platform.auth.CurrentUser.userId;
 
 @RestController
 @RequestMapping("/api")
@@ -43,25 +48,25 @@ public class MediaController {
     }
 
     /** El lugar de la casa de una foto o video ya subido. */
-    public record UpdateMediaSectorRequest(@jakarta.validation.constraints.Size(max = 80) String sector) {
+    public record UpdateMediaSectorRequest(@Size(max = 80) String sector) {
     }
 
-    @org.springframework.web.bind.annotation.PatchMapping("/media/{mediaId}/sector")
+    @PatchMapping("/media/{mediaId}/sector")
     public MediaAssetResponse updateSector(
             @AuthenticationPrincipal Jwt jwt, @PathVariable UUID mediaId,
-            @jakarta.validation.Valid @org.springframework.web.bind.annotation.RequestBody UpdateMediaSectorRequest request) {
-        return mediaService.updateSector(UUID.fromString(jwt.getSubject()), mediaId, request.sector());
+            @Valid @RequestBody UpdateMediaSectorRequest request) {
+        return mediaService.updateSector(userId(jwt), mediaId, request.sector());
     }
 
     /** "Mover a fotos de obra": el lugar y el día en que se sacó. */
     public record MoveToWorkRequest(
-            @jakarta.validation.constraints.Size(max = 80) String sector, java.time.LocalDate takenOn) {
+            @Size(max = 80) String sector, LocalDate takenOn) {
     }
 
     @PostMapping("/media/{mediaId}/to-work")
     public MediaAssetResponse moveToWork(
             @AuthenticationPrincipal Jwt jwt, @PathVariable UUID mediaId,
-            @jakarta.validation.Valid @org.springframework.web.bind.annotation.RequestBody MoveToWorkRequest request) {
+            @Valid @RequestBody MoveToWorkRequest request) {
         return mediaService.moveToWork(userId(jwt), mediaId, request.sector(), request.takenOn());
     }
 
@@ -76,9 +81,5 @@ public class MediaController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID developmentId) {
         return mediaService.listAvailable(userId(jwt), developmentId);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

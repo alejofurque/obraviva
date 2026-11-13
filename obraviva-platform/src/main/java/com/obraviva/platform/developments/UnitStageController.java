@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api/units/{unitId}/stages")
 public class UnitStageController {
@@ -43,9 +45,5 @@ public class UnitStageController {
     @ResponseStatus(HttpStatus.CREATED)
     public List<StageResponse> applyStandard(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID unitId) {
         return stageService.applyStandardStages(userId(jwt), unitId);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

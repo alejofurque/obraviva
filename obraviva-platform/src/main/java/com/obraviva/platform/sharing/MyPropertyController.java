@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api")
 public class MyPropertyController {
@@ -32,9 +34,5 @@ public class MyPropertyController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID unitId) {
         return myPropertyService.property(userId(jwt), unitId);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 /**
  * Etapas de una casa. Cada casa se construye por separado: tiene su propio cronograma,
@@ -77,7 +78,7 @@ public class UnitStageService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "La casa ya tiene etapas: la plantilla se aplica sólo a una casa sin etapas");
         }
         List<StandardHouseStages.StandardStage> template = StandardHouseStages.STAGES;
-        return java.util.stream.IntStream.range(0, template.size())
+        return IntStream.range(0, template.size())
                 .mapToObj(index -> {
                     StandardHouseStages.StandardStage standard = template.get(index);
                     Stage stage = newStage(unit, standard.name(), index + 1);

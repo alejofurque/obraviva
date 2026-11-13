@@ -1,11 +1,11 @@
 package com.obraviva.platform.conversion.gsbox;
 
+import com.obraviva.platform.common.process.ProcessRunner;
 import com.obraviva.platform.conversion.ArchiveExtractor;
 import com.obraviva.platform.conversion.ConversionResult;
 import com.obraviva.platform.conversion.InvalidReconstructionArchiveException;
 import com.obraviva.platform.conversion.SplatConversionException;
 import com.obraviva.platform.conversion.SplatConverter;
-import com.obraviva.platform.video.ffmpeg.ProcessRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +26,7 @@ import java.util.List;
  *
  * <ul>
  *   <li>{@code -ov 2} — versión de SPZ. Es la que exporta Scaniverse y la que el
- *       visor viene usando desde la Fase 0. Spark también carga v3, pero v2 pesa
+ *       visor usa desde el principio. Spark también carga v3, pero v2 pesa
  *       menos (6,7 MB contra 7,1 MB para la misma escena).</li>
  *   <li>{@code -q 5} — calidad. Comparada A/B contra la calidad 9 con corte seco y
  *       cámara fija: diferencia visual imperceptible, 21% menos de tamaño. El ahorro

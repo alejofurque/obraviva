@@ -66,8 +66,8 @@ obraviva:
       provider: mock
       prompt-version: v1
       model-id: gemini-3.6-flash
-    
-    sharing:
+
+  sharing:
     # Vigencia de las URLs firmadas que salen en la vista pública. Corta a propósito:
     # una URL firmada sobrevive a la revocación del enlace que la originó, porque el
     # almacenamiento no consulta nada al servirla. Esto acota esa ventana al tiempo
@@ -122,6 +122,9 @@ obraviva:
     # en el mismo instante al levantar la aplicación.
     audio-initial-delay-ms: 30000
     report-initial-delay-ms: 35000
+    # Versiones livianas de fotos y videos: cada pocos segundos, de a unas pocas fotos.
+    variants-poll-interval-ms: 5000
+    variants-initial-delay-ms: 40000
     max-attempts: 3
     # Tope de espera del servicio externo. El corte es por tiempo y no por intentos:
     # cada espera reinicia el contador a propósito.

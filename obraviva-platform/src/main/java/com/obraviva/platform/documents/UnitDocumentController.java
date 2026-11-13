@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api")
 public class UnitDocumentController {
@@ -57,9 +59,5 @@ public class UnitDocumentController {
     @GetMapping("/my-units/{unitId}/documents")
     public List<DocumentResponse> listForUnit(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID unitId) {
         return documentService.listForUnit(userId(jwt), unitId);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

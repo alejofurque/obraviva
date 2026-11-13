@@ -4,6 +4,7 @@ import com.obraviva.platform.media.variants.ImageVariants.SignedImage;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +31,7 @@ public record UnitResponse(
         boolean hasCover,
         UnitSalesStatus salesStatus,
         /** El día de la reserva o la venta; nulo si no hay o para el encargado. */
-        java.time.LocalDate salesStatusOn,
+        LocalDate salesStatusOn,
         Integer buyerCount,
         String modelName,
         BigDecimal lotAreaM2,

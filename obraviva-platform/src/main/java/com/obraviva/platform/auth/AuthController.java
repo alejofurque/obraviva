@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
-import java.util.UUID;
+
+import static com.obraviva.platform.auth.CurrentUser.userId;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -34,7 +35,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public Map<String, String> me(@AuthenticationPrincipal Jwt jwt) {
-        User user = userRepository.findById(UUID.fromString(jwt.getSubject()))
+        User user = userRepository.findById(userId(jwt))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
         return Map.of(
                 "id", user.getId().toString(),
@@ -46,7 +47,7 @@ public class AuthController {
     public LoginResponse changePassword(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody ChangePasswordRequest request) {
-        return authService.changePassword(UUID.fromString(jwt.getSubject()), request);
+        return authService.changePassword(userId(jwt), request);
     }
 
     @PostMapping("/refresh")

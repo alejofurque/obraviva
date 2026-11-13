@@ -17,9 +17,12 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -154,7 +157,7 @@ public class DevelopmentService {
     public List<UnitResponse> listUnits(UUID userId, UUID developmentId) {
         Development development = requireAccessibleDevelopment(userId, developmentId);
         List<UUID> organizationIds = membershipService.organizationIdsOf(userId);
-        java.util.Optional<java.util.Set<UUID>> scope =
+        Optional<Set<UUID>> scope =
                 developmentAccess.houseScope(userId, developmentId, development.getOrganizationId());
         List<Unit> units = unitRepository.findByDevelopmentIdAndOrganizationIdIn(developmentId, organizationIds).stream()
                 .filter(unit -> scope.map(houses -> houses.contains(unit.getId())).orElse(true))
@@ -339,7 +342,7 @@ public class DevelopmentService {
     }
 
     private Map<UUID, Long> unitCountByDevelopment(List<UUID> developmentIds, Collection<UUID> organizationIds) {
-        Map<UUID, Long> counts = new java.util.HashMap<>();
+        Map<UUID, Long> counts = new HashMap<>();
         for (UUID developmentId : developmentIds) {
             counts.put(developmentId, (long) unitRepository.findByDevelopmentIdAndOrganizationIdIn(developmentId, organizationIds).size());
         }
@@ -347,7 +350,7 @@ public class DevelopmentService {
     }
 
     private SignedImage coverOf(Development development) {
-        return imageVariants.lookup(List.of(development.getOrganizationId()), java.util.Collections.singletonList(development.getCoverStorageKey()))
+        return imageVariants.lookup(List.of(development.getOrganizationId()), Collections.singletonList(development.getCoverStorageKey()))
                 .sign(development.getCoverStorageKey());
     }
 

@@ -149,9 +149,4 @@ public class ProcessingJobService {
     public void deleteByResource(UUID resourceId) {
         jobRepository.findByResourceId(resourceId).ifPresent(jobRepository::delete);
     }
-
-    @Transactional(readOnly = true)
-    public List<ProcessingJob> findPending() {
-        return jobRepository.findByStatusOrderByCreatedAtAsc(JobStatus.PENDING);
-    }
 }

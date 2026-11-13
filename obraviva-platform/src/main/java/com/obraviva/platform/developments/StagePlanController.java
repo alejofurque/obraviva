@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api")
 public class StagePlanController {
@@ -27,9 +29,5 @@ public class StagePlanController {
             @PathVariable UUID stageId,
             @Valid @RequestBody UpdateStagePlanRequest request) {
         return stagePlanService.updatePlan(userId(jwt), stageId, request);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

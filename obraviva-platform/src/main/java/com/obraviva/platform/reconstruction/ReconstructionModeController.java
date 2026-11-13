@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.UUID;
+
+import static com.obraviva.platform.auth.CurrentUser.userId;
 
 /**
  * Informa si la reconstrucción 3D está en modo simulado y, al dueño, cuántos créditos quedan.
@@ -49,7 +50,7 @@ public class ReconstructionModeController {
     /** Sólo para el dueño: los créditos son de la cuenta de la empresa, no del trabajo de campo. */
     @GetMapping("/credits")
     public ReconstructionCreditsResponse credits(@AuthenticationPrincipal Jwt jwt) {
-        if (membership.ownedOrganizationIdsOf(UUID.fromString(jwt.getSubject())).isEmpty()) {
+        if (membership.ownedOrganizationIdsOf(userId(jwt)).isEmpty()) {
             throw OrganizationMembershipService.ownerOnly();
         }
         if (simulated) {

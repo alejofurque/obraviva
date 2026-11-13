@@ -2,6 +2,7 @@ package com.obraviva.platform.media.variants;
 
 import com.obraviva.platform.auth.User;
 import com.obraviva.platform.auth.UserRepository;
+import com.obraviva.platform.common.process.ProcessRunner;
 import com.obraviva.platform.media.MediaAssetRepository;
 import com.obraviva.platform.media.MediaVariantsStatus;
 import com.obraviva.platform.organizations.Organization;
@@ -10,7 +11,6 @@ import com.obraviva.platform.organizations.OrganizationMemberRepository;
 import com.obraviva.platform.organizations.OrganizationRepository;
 import com.obraviva.platform.organizations.OrganizationRole;
 import com.obraviva.platform.storage.StorageService;
-import com.obraviva.platform.video.ffmpeg.ProcessRunner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

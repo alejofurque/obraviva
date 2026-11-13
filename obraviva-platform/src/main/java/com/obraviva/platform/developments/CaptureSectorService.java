@@ -7,17 +7,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -26,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -73,18 +65,8 @@ public class CaptureSectorService {
      * ({@code previousName}): con eso, cambiar el texto de una fila es un renombre, que
      * conserva el sector y lleva sus fotos y recorridos al nombre nuevo, y no quitar uno y
      * agregar otro. Sin {@code previousName}, es un sector nuevo.
-     *
-     * <p>{@code names} es la forma anterior, una lista de nombres: lo que coincide con un
-     * sector existente se conserva y lo demás es nuevo. Sirve para la plantilla y los
-     * clientes viejos; con ella un cambio de texto es quitar y agregar.
      */
-    public record ReplaceSectorsRequest(
-            @Size(max = MAX_SECTORS) List<@Size(max = 80) String> names,
-            @Size(max = MAX_SECTORS) List<@Valid @NotNull SectorChange> sectors) {
-
-        public ReplaceSectorsRequest(List<String> names) {
-            this(names, null);
-        }
+    public record ReplaceSectorsRequest(@Size(max = MAX_SECTORS) List<@Valid @NotNull SectorChange> sectors) {
     }
 
     /**
@@ -92,17 +74,10 @@ public class CaptureSectorService {
      * conserva lo que el sector ya tenía, y un sector nuevo arranca sin marca.
      */
     public record SectorChange(@NotNull @Size(max = 80) String name, @Size(max = 80) String previousName, Boolean front) {
-
-        public SectorChange(String name, String previousName) {
-            this(name, previousName, null);
-        }
     }
 
     /** Un sector como lo ve el editor: su nombre y si es el frente. */
     public record SectorView(String name, boolean front) {
-    }
-
-    public record RenameSectorRequest(@NotNull @Size(max = 80) String from, @NotNull @Size(max = 80) String to) {
     }
 
     @Transactional(readOnly = true)
@@ -126,7 +101,7 @@ public class CaptureSectorService {
      * Para quien ya verificó el acceso.
      */
     @Transactional(readOnly = true)
-    public java.util.Optional<String> frontOf(UUID unitId) {
+    public Optional<String> frontOf(UUID unitId) {
         return sectorRepository.findByUnitIdOrderByOrderIndexAsc(unitId).stream()
                 .filter(CaptureSector::isFront)
                 .map(CaptureSector::getName)
@@ -172,34 +147,10 @@ public class CaptureSectorService {
     public List<String> replace(UUID userId, UUID unitId, ReplaceSectorsRequest request) {
         Unit unit = requireOwnedUnit(userId, unitId);
         List<CaptureSector> existing = sectorRepository.findByUnitIdOrderByOrderIndexAsc(unitId);
-        List<SectorChange> changes = changesOf(request, existing);
-        apply(unit, existing, changes);
-        return names(unitId);
-    }
-
-    /**
-     * Renombra un sector y, en la misma transacción, sus recorridos y sus fotos de esa casa.
-     * Si el nombre nuevo ya es otro sector de la casa, 409.
-     */
-    @Transactional
-    public List<String> rename(UUID userId, UUID unitId, RenameSectorRequest request) {
-        Unit unit = requireOwnedUnit(userId, unitId);
-        List<CaptureSector> existing = sectorRepository.findByUnitIdOrderByOrderIndexAsc(unitId);
-        String from = request.from().trim();
-        String to = normalize(request.to());
-        if (to.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El sector tiene que tener nombre");
+        if (request.sectors() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta la lista de sectores");
         }
-        if (existing.stream().noneMatch(sector -> sector.getName().equals(from))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "\"%s\" no es un sector de esta casa".formatted(from));
-        }
-        if (existing.stream().anyMatch(sector -> !sector.getName().equals(from) && sector.getName().equalsIgnoreCase(to))) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "La casa ya tiene un sector \"%s\"".formatted(to));
-        }
-        List<SectorChange> changes = existing.stream()
-                .map(sector -> new SectorChange(sector.getName().equals(from) ? to : sector.getName(), sector.getName(), null))
-                .toList();
-        apply(unit, existing, changes);
+        apply(unit, existing, request.sectors());
         return names(unitId);
     }
 
@@ -213,22 +164,6 @@ public class CaptureSectorService {
                 sectorRepository.save(sector);
             }
         }
-    }
-
-    /** Lo que pide el cliente, como cambios fila por fila. La forma con nombres conserva lo que coincide. */
-    private static List<SectorChange> changesOf(ReplaceSectorsRequest request, List<CaptureSector> existing) {
-        if (request.sectors() != null) {
-            return request.sectors();
-        }
-        if (request.names() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Falta la lista de sectores");
-        }
-        Set<String> current = new HashSet<>();
-        existing.forEach(sector -> current.add(sector.getName()));
-        return request.names().stream()
-                .filter(name -> name != null && !name.isBlank())
-                .map(name -> new SectorChange(name, current.contains(normalize(name)) ? normalize(name) : null, null))
-                .toList();
     }
 
     /**
@@ -355,40 +290,5 @@ public class CaptureSectorService {
                 .filter(unit -> developmentAccess.canWorkOnUnit(
                         userId, unit.getDevelopment().getId(), unit.getOrganizationId(), unit.getId()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Casa no encontrada"));
-    }
-
-    @RestController
-    @RequestMapping("/api/units/{unitId}/sectors")
-    public static class CaptureSectorController {
-
-        private final CaptureSectorService sectorService;
-
-        public CaptureSectorController(CaptureSectorService sectorService) {
-            this.sectorService = sectorService;
-        }
-
-        @GetMapping
-        public List<String> list(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID unitId) {
-            return sectorService.list(UUID.fromString(jwt.getSubject()), unitId);
-        }
-
-        @PutMapping
-        public List<String> replace(
-                @AuthenticationPrincipal Jwt jwt, @PathVariable UUID unitId,
-                @Valid @RequestBody ReplaceSectorsRequest request) {
-            return sectorService.replace(UUID.fromString(jwt.getSubject()), unitId, request);
-        }
-
-        @GetMapping("/detail")
-        public List<SectorView> detail(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID unitId) {
-            return sectorService.detail(UUID.fromString(jwt.getSubject()), unitId);
-        }
-
-        @PatchMapping("/rename")
-        public List<String> rename(
-                @AuthenticationPrincipal Jwt jwt, @PathVariable UUID unitId,
-                @Valid @RequestBody RenameSectorRequest request) {
-            return sectorService.rename(UUID.fromString(jwt.getSubject()), unitId, request);
-        }
     }
 }

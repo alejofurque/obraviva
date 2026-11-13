@@ -12,8 +12,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -277,8 +279,8 @@ class ActivityQueries {
 
     private static Instant toInstant(Object value) {
         if (value instanceof Instant instant) return instant;
-        if (value instanceof java.time.OffsetDateTime offset) return offset.toInstant();
-        if (value instanceof java.sql.Timestamp timestamp) return timestamp.toInstant();
+        if (value instanceof OffsetDateTime offset) return offset.toInstant();
+        if (value instanceof Timestamp timestamp) return timestamp.toInstant();
         throw new IllegalStateException("Fecha inesperada: " + value);
     }
 

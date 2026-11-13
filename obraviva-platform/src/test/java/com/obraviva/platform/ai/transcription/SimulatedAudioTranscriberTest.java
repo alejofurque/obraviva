@@ -5,7 +5,7 @@ import com.obraviva.platform.ai.extraction.AudioExtraction;
 import com.obraviva.platform.ai.extraction.ExtractionRequest;
 import com.obraviva.platform.ai.extraction.StageContext;
 import com.obraviva.platform.ai.extraction.mock.MockProgressExtractor;
-import com.obraviva.platform.video.ffmpeg.ProcessRunner;
+import com.obraviva.platform.common.process.ProcessRunner;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

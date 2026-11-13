@@ -121,14 +121,6 @@ class HouseModelRequestsDeserializationTest {
     }
 
     @Test
-    @DisplayName("los sectores del recorrido 3D llegan como lista de nombres")
-    void captureSectors() {
-        assertThat(JSON.readValue("""
-                {"names":["Frente","Living y cocina"]}""", CaptureSectorService.ReplaceSectorsRequest.class).names())
-                .containsExactly("Frente", "Living y cocina");
-    }
-
-    @Test
     @DisplayName("avance, foto, gasto y audio llevan la casa opcional")
     void unitScopedRequests() {
         assertThat(JSON.readValue("""

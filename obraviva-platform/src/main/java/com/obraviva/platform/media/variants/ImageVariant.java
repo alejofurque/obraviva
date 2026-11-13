@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import java.time.Instant;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -50,7 +51,7 @@ class ImageVariant {
     ImageVariant(UUID organizationId, String storageKey) {
         this.storageKey = storageKey;
         this.organizationId = organizationId;
-        this.status = storageKey.toLowerCase(java.util.Locale.ROOT).endsWith(".svg")
+        this.status = storageKey.toLowerCase(Locale.ROOT).endsWith(".svg")
                 ? MediaVariantsStatus.SKIPPED : MediaVariantsStatus.PENDING;
         this.createdAt = Instant.now();
     }

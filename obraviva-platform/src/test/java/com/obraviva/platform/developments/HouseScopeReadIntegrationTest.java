@@ -120,18 +120,15 @@ class HouseScopeReadIntegrationTest {
     }
 
     @Test
-    @DisplayName("avances: los de su casa y los comunes; el historial de uno de la Casa 3 es 404")
+    @DisplayName("avances: los de su casa y los comunes, nunca los de la Casa 3")
     void progress() throws Exception {
         progressEntry(casa1, "Platea de la Casa 1");
-        UUID foreignRoot = progressEntry(casa3, "Platea de la Casa 3");
+        progressEntry(casa3, "Platea de la Casa 3");
         progressEntry(null, "Cordón cuneta");
 
         assertThat(descriptions(json(ok(send(supervisorToken, get(developmentUrl("/progress")))))))
                 .containsExactlyInAnyOrder("Platea de la Casa 1", "Cordón cuneta");
         assertThat(json(ok(send(ownerToken, get(developmentUrl("/progress")))))).hasSize(3);
-
-        send(supervisorToken, get("/api/progress/" + foreignRoot + "/history")).andExpect(status().isNotFound());
-        ok(send(ownerToken, get("/api/progress/" + foreignRoot + "/history")));
     }
 
     @Test

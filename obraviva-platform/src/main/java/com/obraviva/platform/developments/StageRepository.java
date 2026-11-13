@@ -17,8 +17,6 @@ public interface StageRepository extends JpaRepository<Stage, UUID> {
 
     Optional<Stage> findByIdAndOrganizationIdIn(UUID id, Collection<UUID> organizationIds);
 
-    boolean existsByDevelopmentIdAndOrderIndex(UUID developmentId, int orderIndex);
-
     /** Etapas de una casa, en orden de obra. */
     List<Stage> findByUnitIdAndOrganizationIdInOrderByOrderIndexAsc(UUID unitId, Collection<UUID> organizationIds);
 

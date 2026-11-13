@@ -1,20 +1,19 @@
 package com.obraviva.platform.storage;
 
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
+import com.obraviva.platform.support.TestMinio;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,14 +23,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Verifica la transferencia real de bytes contra MinIO. A diferencia del resto de
- * la suite, este test SÍ necesita MinIO corriendo (docker compose up -d): mockear
+ * Verifica la transferencia real de bytes contra MinIO, el de la suite ({@link TestMinio}): mockear
  * el SDK verificaría que Mockito devuelve lo que se le indicó, no que el protocolo
  * funcione. El acceso "path style" contra MinIO es justamente la clase de detalle
- * que sólo se rompe contra el servidor real.
- *
- * <p>Si MinIO no responde, la clase se omite entera. Ojo al leer el resultado: eso
- * aparece como "Tests run: 0" con build exitoso. El conteo esperado es 6.
+ * que sólo se rompe contra el servidor real. El conteo esperado es 6.
  */
 @SpringBootTest
 @Testcontainers
@@ -41,19 +36,16 @@ class StorageTransferIntegrationTest {
     @ServiceConnection
     static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
 
+    @DynamicPropertySource
+    static void storage(DynamicPropertyRegistry registry) {
+        TestMinio.register(registry);
+    }
+
     @Autowired
     private StorageService storageService;
 
     @TempDir
     Path tempDir;
-
-    @BeforeAll
-    static void requireMinio() {
-        Assumptions.assumeTrue(
-                minioResponds(),
-                "MinIO no responde en http://localhost:9000: se omiten los tests de transferencia. "
-                        + "Levantalo con 'docker compose up -d'.");
-    }
 
     private String randomKey() {
         return "tests/transfer/" + UUID.randomUUID() + ".bin";
@@ -152,21 +144,5 @@ class StorageTransferIntegrationTest {
 
         assertThatThrownBy(() -> storageService.size(key)).isInstanceOf(StorageException.class);
         assertThatThrownBy(() -> storageService.readPrefix(key, 16)).isInstanceOf(StorageException.class);
-    }
-
-    private static boolean minioResponds() {
-        try {
-            HttpURLConnection connection =
-                    (HttpURLConnection) URI.create("http://localhost:9000/minio/health/live")
-                            .toURL().openConnection();
-            connection.setRequestMethod("GET");
-            connection.setConnectTimeout(2000);
-            connection.setReadTimeout(2000);
-            int status = connection.getResponseCode();
-            connection.disconnect();
-            return status > 0;
-        } catch (IOException e) {
-            return false;
-        }
     }
 }

@@ -4,25 +4,17 @@ import com.obraviva.platform.media.variants.ImageVariants;
 import com.obraviva.platform.organizations.OrganizationMembershipService;
 import com.obraviva.platform.organizations.OrganizationRole;
 import com.obraviva.platform.storage.StorageService;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -123,7 +115,7 @@ public class DevelopmentDetailsService {
 
     /** Portada desde un archivo del servidor, para los datos de demostración. */
     @Transactional
-    public DevelopmentResponse importCover(UUID userId, UUID developmentId, java.nio.file.Path file, String contentType) {
+    public DevelopmentResponse importCover(UUID userId, UUID developmentId, Path file, String contentType) {
         String extension = COVER_TYPES.get(contentType);
         if (extension == null) {
             throw new IllegalArgumentException("Tipo de portada no aceptado: " + contentType);
@@ -161,35 +153,5 @@ public class DevelopmentDetailsService {
             }
         }
         return cleaned;
-    }
-
-    @RestController
-    @RequestMapping("/api/developments/{developmentId}")
-    public static class DevelopmentDetailsController {
-
-        private final DevelopmentDetailsService detailsService;
-
-        public DevelopmentDetailsController(DevelopmentDetailsService detailsService) {
-            this.detailsService = detailsService;
-        }
-
-        @PutMapping
-        public DevelopmentResponse update(
-                @AuthenticationPrincipal Jwt jwt, @PathVariable UUID developmentId,
-                @Valid @RequestBody UpdateDevelopmentRequest request) {
-            return detailsService.update(UUID.fromString(jwt.getSubject()), developmentId, request);
-        }
-
-        @PostMapping("/cover/upload-url")
-        public CoverUploadResponse requestCoverUpload(
-                @AuthenticationPrincipal Jwt jwt, @PathVariable UUID developmentId,
-                @Valid @RequestBody RequestCoverUploadRequest request) {
-            return detailsService.requestCoverUpload(UUID.fromString(jwt.getSubject()), developmentId, request);
-        }
-
-        @PostMapping("/cover/confirm")
-        public DevelopmentResponse confirmCover(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID developmentId) {
-            return detailsService.confirmCover(UUID.fromString(jwt.getSubject()), developmentId);
-        }
     }
 }

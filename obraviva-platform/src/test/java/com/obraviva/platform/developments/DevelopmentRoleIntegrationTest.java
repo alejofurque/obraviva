@@ -1,14 +1,15 @@
 package com.obraviva.platform.developments;
 
-import com.obraviva.platform.developments.DevelopmentMemberRepository;
-import com.obraviva.platform.support.SupervisorAssignments;
 import com.obraviva.platform.auth.User;
 import com.obraviva.platform.auth.UserRepository;
+import com.obraviva.platform.developments.DevelopmentMemberRepository;
 import com.obraviva.platform.organizations.Organization;
 import com.obraviva.platform.organizations.OrganizationMember;
 import com.obraviva.platform.organizations.OrganizationMemberRepository;
 import com.obraviva.platform.organizations.OrganizationRepository;
 import com.obraviva.platform.organizations.OrganizationRole;
+import com.obraviva.platform.support.SupervisorAssignments;
+import com.obraviva.platform.support.TestMinio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,8 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -47,6 +50,11 @@ class DevelopmentRoleIntegrationTest {
     @Container
     @ServiceConnection
     static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
+
+    @DynamicPropertySource
+    static void storage(DynamicPropertyRegistry registry) {
+        TestMinio.register(registry);
+    }
 
     private static final JsonMapper JSON = JsonMapper.builder().build();
     private static final String PASSWORD = "secreto123";

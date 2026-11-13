@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -116,7 +117,7 @@ public class ExpenseService {
         if (!stage.getDevelopment().getId().equals(developmentId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La etapa pertenece a otro desarrollo");
         }
-        if (!java.util.Objects.equals(stage.getUnitId(), unitId)) {
+        if (!Objects.equals(stage.getUnitId(), unitId)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La etapa no es de la casa del gasto");
         }
     }

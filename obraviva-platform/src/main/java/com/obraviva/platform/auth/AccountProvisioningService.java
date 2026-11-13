@@ -144,23 +144,12 @@ public class AccountProvisioningService {
     }
 
     /**
-     * Reemplaza la contraseña por una inicial nueva y cierra todas las sesiones de la
-     * cuenta. Devuelve la contraseña en claro una sola vez.
-     *
-     * <p>No decide quién puede hacerlo: eso depende de a qué organizaciones pertenece la
-     * cuenta, que este módulo no conoce. Quien llama lo verifica antes.
-     */
-    @Transactional
-    public String resetPassword(UUID userId) {
-        return changePassword(userId, null);
-    }
-
-    /**
      * Reemplaza la contraseña por la que eligió el dueño o, si es nula, por una generada, y
      * cierra todas las sesiones de la cuenta revocando sus tokens de refresco. Devuelve la
      * generada en claro una sola vez; con una elegida devuelve nulo.
      *
-     * <p>Igual que {@link #resetPassword(UUID)}, no decide quién puede hacerlo.
+     * <p>No decide quién puede hacerlo: eso depende de a qué organizaciones pertenece la
+     * cuenta, que este módulo no conoce. Quien llama lo verifica antes.
      */
     @Transactional
     public String changePassword(UUID userId, String chosenPassword) {

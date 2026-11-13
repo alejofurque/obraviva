@@ -1,6 +1,7 @@
 package com.obraviva.platform.media;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 
@@ -31,7 +32,7 @@ public record MediaAssetResponse(
         /** De la galería de venta, no evidencia de obra. */
         boolean showcase,
         /** Día de la sesión en que se sacó; nulo si no viene de una sesión. */
-        java.time.LocalDate takenOn) {
+        LocalDate takenOn) {
 
     static MediaAssetResponse from(MediaAsset asset, UnaryOperator<String> sign, UUID progressRootId, UUID viewerId) {
         String downloadUrl = asset.isAvailable() ? sign.apply(asset.getStorageKey()) : null;

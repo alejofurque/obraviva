@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -130,7 +132,7 @@ public class ProjectComparisonService {
 
     /** Render desde un archivo que ya está en el servidor, para los datos de demostración. */
     @Transactional
-    public ComparisonResponse importRender(UUID userId, UUID comparisonId, java.nio.file.Path file, String contentType) {
+    public ComparisonResponse importRender(UUID userId, UUID comparisonId, Path file, String contentType) {
         String extension = RENDER_TYPES.get(contentType);
         if (extension == null) {
             throw new IllegalArgumentException("Tipo de render no aceptado: " + contentType);
@@ -185,7 +187,7 @@ public class ProjectComparisonService {
 
     private ComparisonResponse toResponse(ProjectComparison comparison, Map<UUID, MediaSummary> photos) {
         return toResponse(comparison, photos, imageVariants.lookup(List.of(comparison.getOrganizationId()),
-                java.util.Collections.singletonList(comparison.getRenderStorageKey())));
+                Collections.singletonList(comparison.getRenderStorageKey())));
     }
 
     private ComparisonResponse toResponse(ProjectComparison comparison, Map<UUID, MediaSummary> photos, ImageVariants.Images renders) {

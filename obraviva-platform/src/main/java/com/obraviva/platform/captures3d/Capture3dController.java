@@ -25,14 +25,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api")
 public class Capture3dController {
 
     private final Capture3dService captureService;
+    private final VideoCaptureService videoCaptureService;
 
-    public Capture3dController(Capture3dService captureService) {
+    public Capture3dController(Capture3dService captureService, VideoCaptureService videoCaptureService) {
         this.captureService = captureService;
+        this.videoCaptureService = videoCaptureService;
     }
 
     @PostMapping("/developments/{developmentId}/captures")
@@ -93,17 +97,13 @@ public class Capture3dController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID developmentId,
             @Valid @RequestBody CreateCaptureFromVideoRequest request) {
-        return captureService.createFromVideo(userId(jwt), developmentId, request);
+        return videoCaptureService.createFromVideo(userId(jwt), developmentId, request);
     }
 
     @PostMapping("/captures/{captureId}/confirm-video")
     public CaptureJobResponse confirmVideoUpload(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID captureId) {
-        return captureService.confirmVideoUpload(userId(jwt), captureId);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
+        return videoCaptureService.confirmVideoUpload(userId(jwt), captureId);
     }
 }

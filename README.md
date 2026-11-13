@@ -142,7 +142,7 @@ Sin KIRI, el simulador procesa un video de punta a punta sólo si tiene ffmpeg, 
 
 ## Tests
 
-Hace falta Docker encendido: los del backend levantan su propio PostgreSQL y no tocan la base de desarrollo.
+Hace falta Docker encendido: los del backend levantan su propio PostgreSQL y su propio MinIO, y no tocan los contenedores de desarrollo, que pueden estar apagados.
 
 ```powershell
 cd web

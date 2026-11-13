@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -102,9 +104,9 @@ public class UnitDetailsService {
      * Disponible no lleva día.
      */
     @Transactional
-    public UnitResponse changeSalesStatus(UUID userId, UUID unitId, UnitSalesStatus status, java.time.LocalDate on) {
+    public UnitResponse changeSalesStatus(UUID userId, UUID unitId, UnitSalesStatus status, LocalDate on) {
         Unit unit = requireOwnedUnit(userId, unitId);
-        java.time.LocalDate today = java.time.LocalDate.now();
+        LocalDate today = LocalDate.now();
         if (on != null && on.isAfter(today)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha de la reserva o la venta no puede ser futura");
         }
@@ -116,7 +118,7 @@ public class UnitDetailsService {
     /** Portada desde un archivo que ya está en el servidor, para los datos de demostración. */
     @Transactional
     public UnitResponse importCover(
-            UUID userId, UUID unitId, String filename, String contentType, java.nio.file.Path file) {
+            UUID userId, UUID unitId, String filename, String contentType, Path file) {
         requestCoverUpload(userId, unitId, new RequestCoverUploadRequest(filename, contentType));
         Unit unit = requireOwnedUnit(userId, unitId);
         storageService.upload(file, unit.getCoverPendingStorageKey(), contentType);

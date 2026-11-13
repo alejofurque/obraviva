@@ -1,7 +1,7 @@
 package com.obraviva.platform.conversion;
 
+import com.obraviva.platform.common.process.ProcessRunner;
 import com.obraviva.platform.conversion.gsbox.GsboxSplatConverter;
-import com.obraviva.platform.video.ffmpeg.ProcessRunner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

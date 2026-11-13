@@ -10,8 +10,11 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * API pública del módulo developments hacia otros módulos, en lo referido a etapas:
@@ -56,8 +59,8 @@ public class StageCatalogService {
             BigDecimal budgetAmount,
             UUID unitId,
             /** Las fechas previstas: con presupuesto, arman la curva prevista del gasto. */
-            java.time.LocalDate plannedStart,
-            java.time.LocalDate plannedEnd) {
+            LocalDate plannedStart,
+            LocalDate plannedEnd) {
     }
 
     /**
@@ -89,30 +92,20 @@ public class StageCatalogService {
     public record StageDetail(
             UUID id,
             String description,
-            java.time.LocalDate plannedStart,
-            java.time.LocalDate plannedEnd,
-            java.time.LocalDate startedOn,
-            java.time.LocalDate completedOn) {
+            LocalDate plannedStart,
+            LocalDate plannedEnd,
+            LocalDate startedOn,
+            LocalDate completedOn) {
     }
 
     @Transactional(readOnly = true)
-    public java.util.Map<UUID, StageDetail> stageDetailsOf(UUID developmentId, List<UUID> organizationIds) {
+    public Map<UUID, StageDetail> stageDetailsOf(UUID developmentId, List<UUID> organizationIds) {
         return stageRepository
                 .findByDevelopmentIdAndOrganizationIdInOrderByOrderIndexAsc(developmentId, organizationIds)
                 .stream()
-                .collect(java.util.stream.Collectors.toMap(Stage::getId, stage -> new StageDetail(
+                .collect(Collectors.toMap(Stage::getId, stage -> new StageDetail(
                         stage.getId(), stage.getDescription(), stage.getPlannedStart(), stage.getPlannedEnd(),
                         stage.getStartedOn(), stage.getCompletedOn())));
-    }
-
-    /** Etapas de una casa, para su vista y su avance. */
-    @Transactional(readOnly = true)
-    public List<StageProgress> stageProgressOfUnit(UUID unitId, List<UUID> organizationIds) {
-        return stageRepository
-                .findByUnitIdAndOrganizationIdInOrderByOrderIndexAsc(unitId, organizationIds)
-                .stream()
-                .map(StageCatalogService::toProgress)
-                .toList();
     }
 
     static StageProgress toProgress(Stage stage) {
@@ -133,9 +126,9 @@ public class StageCatalogService {
      * comunes.
      */
     public static int developmentProgressPercent(List<StageProgress> stages) {
-        java.util.Map<UUID, List<StageProgress>> byUnit = stages.stream()
+        Map<UUID, List<StageProgress>> byUnit = stages.stream()
                 .filter(stage -> stage.unitId() != null)
-                .collect(java.util.stream.Collectors.groupingBy(StageProgress::unitId));
+                .collect(Collectors.groupingBy(StageProgress::unitId));
         if (byUnit.isEmpty()) {
             return overallProgressPercent(stages);
         }
@@ -151,7 +144,7 @@ public class StageCatalogService {
     public static int completedUnitCount(List<StageProgress> stages) {
         return (int) stages.stream()
                 .filter(stage -> stage.unitId() != null)
-                .collect(java.util.stream.Collectors.groupingBy(StageProgress::unitId))
+                .collect(Collectors.groupingBy(StageProgress::unitId))
                 .values().stream()
                 .filter(unitStages -> unitStages.stream().allMatch(stage -> stage.status().equals(StageStatus.COMPLETED.name())))
                 .count();
@@ -211,7 +204,7 @@ public class StageCatalogService {
     @Transactional(readOnly = true)
     public List<StageSummary> stagesForScope(UUID developmentId, UUID unitId, List<UUID> organizationIds) {
         return stagesOf(developmentId, organizationIds).stream()
-                .filter(stage -> java.util.Objects.equals(stage.unitId(), unitId))
+                .filter(stage -> Objects.equals(stage.unitId(), unitId))
                 .toList();
     }
 
@@ -246,7 +239,7 @@ public class StageCatalogService {
      * casa y el usuario, y corre en su transacción.
      */
     @Transactional
-    public StageChange applyProgressUpdate(
+    public AppliedStageChange applyProgressUpdate(
             UUID stageId, UUID organizationId, Integer progressPercent, StageStatus status, LocalDate effectiveOn) {
         Stage stage = stageRepository
                 .findByIdAndOrganizationIdIn(stageId, List.of(organizationId))
@@ -260,11 +253,11 @@ public class StageCatalogService {
         if (status != null && status != stage.getStatus()) {
             stage.changeStatus(status, effectiveOn);
         }
-        return new StageChange(percentBefore, stage.getProgressPercent(), statusBefore, stage.getStatus());
+        return new AppliedStageChange(percentBefore, stage.getProgressPercent(), statusBefore, stage.getStatus());
     }
 
     /** Cómo estaba la etapa antes de un avance y cómo quedó. Completar lleva el porcentaje a 100. */
-    public record StageChange(int percentBefore, int percentAfter, StageStatus statusBefore, StageStatus statusAfter) {
+    public record AppliedStageChange(int percentBefore, int percentAfter, StageStatus statusBefore, StageStatus statusAfter) {
     }
 
     /**

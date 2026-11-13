@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api")
 public class AudioExtractionController {
@@ -85,9 +87,5 @@ public class AudioExtractionController {
             @PathVariable UUID extractionId,
             @Valid @RequestBody RejectExtractionRequest request) {
         return extractionService.reject(userId(jwt), extractionId, request);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

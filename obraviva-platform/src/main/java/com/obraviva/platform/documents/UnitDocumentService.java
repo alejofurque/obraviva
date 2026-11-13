@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
@@ -108,7 +109,7 @@ public class UnitDocumentService {
     /** Documento desde un archivo que ya está en el servidor, para los datos de demostración. */
     @Transactional
     public DocumentResponse importDocument(
-            UUID userId, UUID developmentId, RequestDocumentUploadRequest request, java.nio.file.Path file) {
+            UUID userId, UUID developmentId, RequestDocumentUploadRequest request, Path file) {
         DocumentUploadResponse upload = requestUpload(userId, developmentId, request);
         UnitDocument document = documentRepository.findById(upload.documentId()).orElseThrow();
         storageService.upload(file, document.getStorageKey(), request.contentType());

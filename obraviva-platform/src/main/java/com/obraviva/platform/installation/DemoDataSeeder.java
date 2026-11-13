@@ -275,8 +275,10 @@ public class DemoDataSeeder implements ApplicationRunner {
                     addPlanImages(admin.id(), unit.id());
                     // Barrios cargados antes de los sectores 3D: reciben los estándar.
                     if (captureSectors.list(admin.id(), unit.id()).isEmpty()) {
-                        captureSectors.replace(admin.id(), unit.id(),
-                                new CaptureSectorService.ReplaceSectorsRequest(CaptureSectorService.STANDARD_SECTORS));
+                        captureSectors.replace(admin.id(), unit.id(), new CaptureSectorService.ReplaceSectorsRequest(
+                                CaptureSectorService.STANDARD_SECTORS.stream()
+                                        .map(name -> new CaptureSectorService.SectorChange(name, null, null))
+                                        .toList()));
                     }
                 }
                 if (development.name().equals(AROMOS_NAME)) {

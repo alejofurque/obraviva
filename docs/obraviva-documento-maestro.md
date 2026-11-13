@@ -296,8 +296,8 @@ Aplicación web con arquitectura de monolito modular y procesamiento asincrónic
      ▼          ▼          ▼          ▼
  PostgreSQL  Almacen.   API 3DGS   Proveedor LLM
  + Flyway    S3/MinIO   (KIRI,     (Spring AI,
-             (media,    abstraída)  salidas
-             splats)               estructuradas)
+             (media,    abstraída)  JSON pedido
+             splats)               en el prompt)
 ```
 
 Herramientas de pipeline: ffmpeg (transcodificación), conversor PLY→SPZ. Todo en entorno de desarrollo local (Docker Compose); sin despliegue a producción para la tesis.
@@ -309,20 +309,32 @@ Herramientas de pipeline: ffmpeg (transcodificación), conversor PLY→SPZ. Todo
 | Frontend | Angular + TypeScript + Angular Material + SCSS | Framework profesional, tipado, con experiencia previa del autor; la tesis no es el lugar para aprender un framework nuevo |
 | Visor 3D | Three.js + Spark (MIT, World Labs) | Renderer 3DGS de referencia, activo, integra splats con la escena Three.js estándar; soporta PLY/SPZ; WebGL2 con amplia compatibilidad; su versión 2 incorpora nivel de detalle con streaming |
 | Backend | Java LTS + Spring Boot (Web, Data JPA, Security, Validation, Actuator) | Robustez, experiencia previa, ecosistema maduro |
-| IA | Spring AI con salidas estructuradas forzadas por esquema; proveedor abstraído | Estructura garantizada, independencia de proveedor |
+| IA | Spring AI; el formato JSON se pide en un prompt versionado y `ExtractionValidator` valida la respuesta contra el dominio antes de mostrarla para revisión; proveedor abstraído | Independencia de proveedor; lo que no encaja con el dominio se descarta antes de que lo vea una persona |
 | Base de datos | PostgreSQL + Flyway | Dominio claramente relacional; migraciones versionadas desde el primer commit |
 | Archivos | Almacenamiento compatible S3 (MinIO en local) + URLs firmadas | Videos, fotos y splats fuera de la base; el frontend sube directo sin atravesar el backend |
 | Reconstrucción 3D | API externa de 3DGS (candidato: KIRI Engine), abstraída como adaptador | La reconstrucción no es el aporte de la tesis; la abstracción permite cambiar de proveedor sin tocar el núcleo |
 | Preprocesamiento | ffmpeg | Adecuación automática de videos a los límites del servicio (1080p, 3 min) |
-| Asincronía | Tabla de trabajos con estados + tareas asíncronas de Spring + consulta periódica (polling) | Suficiente para el volumen; sin broker de mensajes; el polling evita el problema de webhooks hacia localhost en desarrollo (el soporte de webhook queda implementado como optimización documentada para producción) |
+| Asincronía | Tabla de trabajos con estados + tareas asíncronas de Spring + consulta periódica (polling) | Suficiente para el volumen; sin broker de mensajes; el polling evita el problema de webhooks hacia localhost en desarrollo (el webhook queda como optimización documentada para producción, no implementada) |
 | Autenticación | Spring Security + JWT (acceso corto + refresco revocable) | Estándar, seguro, controlado |
 | Desarrollo local | Docker Compose (app, base, MinIO) | Entorno reproducible completo |
 | Pruebas | JUnit, Mockito, Testcontainers, Playwright | Unitarias, integración con base real, extremo a extremo |
 
 ### 8.3 Principios de arquitectura
-- Fronteras modulares explícitas: los módulos de dominio no dependen de los de
-       infraestructura; la infraestructura depende del dominio. Verificación automatizada de
-       reglas de dependencia como parte de la suite de pruebas.
+- Fronteras modulares explícitas: un módulo usa a otro sólo por sus servicios públicos y
+       referencias por UUID, y llega a un servicio externo sólo a través de un puerto. Los
+       puertos (almacenamiento, video, conversión, reconstrucción, modelo de lenguaje) viven en
+       el paquete de su integración, junto a sus adaptadores, y no en el dominio: el dominio
+       depende de la abstracción, nunca de un adaptador concreto. Estas reglas se sostienen por
+       convención y revisión; su verificación no está automatizada.
+- Una excepción deliberada: el módulo de novedades (`activity`) lee con sus propias
+       consultas las entidades de otros módulos (avances, fotos, recorridos, audios y
+       trabajos), para paginar el feed por cursor sin traer la obra entera.
+- Otra excepción deliberada: las versiones livianas de fotos y videos llaman a ffmpeg
+       directamente, por el ejecutor de procesos común, sin puerto, porque ffmpeg es una
+       herramienta local y no un servicio externo: no cuesta, no falla por red y no hace falta
+       simularlo para trabajar sin gastar. El preprocesamiento de video (ffmpeg), la conversión
+       a SPZ (gsbox) y la transcripción (whisper), que también son herramientas locales, sí
+       quedaron detrás de su puerto, porque son pasos del pipeline 3D y del de audio.
 - Toda integración externa detrás de una abstracción: el proveedor 3DGS y el
        proveedor de LLM son adaptadores intercambiables; ningún tipo específico de
        proveedor se filtra fuera de su módulo.
@@ -372,10 +384,12 @@ datos calcula; el humano confirma. Ninguna cifra del sistema proviene de un mode
 lenguaje, y nada generado se publica sin revisión.
 
 ### 10.1 Audio → actualización estructurada
-El encargado envía un audio. El pipeline: transcripción → interpretación mediante LLM con
-salida forzada por esquema (etapas afectadas, estados propuestos, novedades, alertas de
-insumos, nivel de confianza por elemento) → pantalla de revisión donde el responsable ve la
-propuesta junto a la transcripción, corrige lo necesario y confirma → publicación. Los prompts
+El encargado envía un audio. El pipeline: transcripción → interpretación mediante LLM, con
+el formato JSON pedido en el prompt versionado (etapas afectadas, estados propuestos,
+novedades, alertas de insumos, nivel de confianza por elemento) → validación contra el
+dominio (`ExtractionValidator` descarta identificadores de etapa inexistentes, estados que no
+existen y textos vacíos) → pantalla de revisión donde el responsable ve la propuesta junto a
+la transcripción, corrige lo necesario y confirma → publicación. Los prompts
 se versionan como artefactos, y cada interpretación almacena la versión de prompt y modelo
 utilizada, junto con la salida cruda, para trazabilidad.
 

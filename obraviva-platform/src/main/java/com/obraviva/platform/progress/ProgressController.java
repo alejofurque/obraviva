@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api")
 public class ProgressController {
@@ -43,16 +45,5 @@ public class ProgressController {
             @PathVariable UUID entryId,
             @Valid @RequestBody UpdateProgressEntryRequest request) {
         return progressService.createCorrection(userId(jwt), entryId, request);
-    }
-
-    @GetMapping("/progress/{rootId}/history")
-    public List<ProgressEntryResponse> history(
-            @AuthenticationPrincipal Jwt jwt,
-            @PathVariable UUID rootId) {
-        return progressService.history(userId(jwt), rootId);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

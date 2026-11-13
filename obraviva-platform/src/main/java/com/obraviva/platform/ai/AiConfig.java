@@ -8,7 +8,7 @@ import com.obraviva.platform.ai.extraction.mock.MockProgressExtractor;
 import com.obraviva.platform.ai.transcription.AudioTranscriber;
 import com.obraviva.platform.ai.transcription.SimulatedAudioTranscriber;
 import com.obraviva.platform.ai.transcription.WhisperAudioTranscriber;
-import com.obraviva.platform.video.ffmpeg.ProcessRunner;
+import com.obraviva.platform.common.process.ProcessRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;

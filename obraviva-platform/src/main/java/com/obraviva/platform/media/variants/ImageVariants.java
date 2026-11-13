@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * API pública de las versiones livianas de las imágenes que no son medios de obra: la portada
@@ -71,7 +72,7 @@ public class ImageVariants {
         }
         repository.findByOrganizationIdInAndStorageKey(List.of(organizationId), storageKey).ifPresent(variant -> {
             repository.delete(variant);
-            List<String> keys = java.util.stream.Stream.of(variant.getThumbStorageKey(), variant.getScreenStorageKey())
+            List<String> keys = Stream.of(variant.getThumbStorageKey(), variant.getScreenStorageKey())
                     .filter(Objects::nonNull).toList();
             if (!keys.isEmpty()) {
                 afterCommit(() -> keys.forEach(this::deleteQuietly));

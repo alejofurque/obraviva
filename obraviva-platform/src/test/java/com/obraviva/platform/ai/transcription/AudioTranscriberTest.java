@@ -1,6 +1,6 @@
 package com.obraviva.platform.ai.transcription;
 
-import com.obraviva.platform.video.ffmpeg.ProcessRunner;
+import com.obraviva.platform.common.process.ProcessRunner;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;

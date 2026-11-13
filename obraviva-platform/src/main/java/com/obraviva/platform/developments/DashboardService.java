@@ -10,17 +10,22 @@ import com.obraviva.platform.developments.DashboardDtos.UnitDashboardRow;
 import com.obraviva.platform.developments.DevelopmentAccessService.DevelopmentSummary;
 import com.obraviva.platform.developments.StageCatalogService.StagePlan;
 import com.obraviva.platform.organizations.OrganizationMembershipService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -85,12 +90,12 @@ public class DashboardService {
                         developmentId, organizationIds);
         List<Unit> units = unitRepository.findByDevelopmentIdAndOrganizationIdIn(developmentId, organizationIds);
         if (unitId != null && units.stream().noneMatch(unit -> unit.getId().equals(unitId))) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.NOT_FOUND, "Casa no encontrada");
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "Casa no encontrada");
         }
 
         List<StagePlan> stages = allStages.stream()
-                .filter(stage -> java.util.Objects.equals(stage.unitId(), unitId))
+                .filter(stage -> Objects.equals(stage.unitId(), unitId))
                 .toList();
         List<Expense> expenses = unitId == null
                 ? allExpenses
@@ -121,7 +126,7 @@ public class DashboardService {
 
         Map<UUID, BigDecimal> spentByAnyStage = spentByStage(allExpenses);
         List<UnitDashboardRow> unitRows = unitId != null ? List.of() : units.stream()
-                .sorted(java.util.Comparator.comparing(Unit::getCode))
+                .sorted(Comparator.comparing(Unit::getCode))
                 .map(unit -> unitRow(unit.getId(), unit.getCode(),
                         allStages.stream().filter(stage -> unit.getId().equals(stage.unitId())).toList(),
                         allExpenses.stream().filter(expense -> unit.getId().equals(expense.getUnitId())).toList(),
@@ -169,7 +174,7 @@ public class DashboardService {
                 commonWorks,
                 generalSpent,
                 scope.stream()
-                        .sorted(java.util.Comparator.<StagePlan, Boolean>comparing(stage -> stage.unitId() == null)
+                        .sorted(Comparator.<StagePlan, Boolean>comparing(stage -> stage.unitId() == null)
                                 .thenComparing(stage -> unitCodes.getOrDefault(stage.unitId(), ""))
                                 .thenComparingInt(StagePlan::orderIndex))
                         .map(stage -> new StageOption(stage.id(), stage.unitId(), stage.name(), stage.orderIndex()))
@@ -193,13 +198,13 @@ public class DashboardService {
             if (stage.budgetAmount() == null || stage.budgetAmount().signum() <= 0 || undated(stage)) {
                 continue;
             }
-            long days = java.time.temporal.ChronoUnit.DAYS.between(stage.plannedStart(), stage.plannedEnd()) + 1;
+            long days = ChronoUnit.DAYS.between(stage.plannedStart(), stage.plannedEnd()) + 1;
             BigDecimal perDay = stage.budgetAmount().divide(BigDecimal.valueOf(days), 10, RoundingMode.HALF_UP);
             LocalDate cursor = stage.plannedStart();
             while (!cursor.isAfter(stage.plannedEnd())) {
                 LocalDate monthEnd = cursor.withDayOfMonth(cursor.lengthOfMonth());
                 LocalDate until = monthEnd.isBefore(stage.plannedEnd()) ? monthEnd : stage.plannedEnd();
-                long inMonth = java.time.temporal.ChronoUnit.DAYS.between(cursor, until) + 1;
+                long inMonth = ChronoUnit.DAYS.between(cursor, until) + 1;
                 byMonth.merge(cursor.format(MONTH), perDay.multiply(BigDecimal.valueOf(inMonth)), BigDecimal::add);
                 cursor = until.plusDays(1);
             }
@@ -245,7 +250,7 @@ public class DashboardService {
         return stages.stream()
                 .map(stage -> Map.entry(stage, toRow(stage, spentByStage.getOrDefault(stage.id(), BigDecimal.ZERO))))
                 .filter(entry -> isAlert(entry.getValue().trafficLight()))
-                .sorted(java.util.Comparator
+                .sorted(Comparator
                         .<Map.Entry<StagePlan, StageDashboardRow>>comparingInt(entry -> severity(entry.getValue().trafficLight()))
                         .thenComparing(entry -> entry.getKey().unitId() == null,
                                 Boolean::compare)
@@ -271,7 +276,7 @@ public class DashboardService {
         BigDecimal usedPercent = percentOf(spent, budget);
         StageDashboardRow worst = stages.stream()
                 .map(stage -> toRow(stage, spentByStage.getOrDefault(stage.id(), BigDecimal.ZERO)))
-                .min(java.util.Comparator.<StageDashboardRow>comparingInt(row -> severity(row.trafficLight()))
+                .min(Comparator.<StageDashboardRow>comparingInt(row -> severity(row.trafficLight()))
                         .thenComparingInt(StageDashboardRow::orderIndex))
                 .orElse(null);
         TrafficLight worstLight = worst == null ? TrafficLight.NO_BUDGET : worst.trafficLight();

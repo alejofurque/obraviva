@@ -13,11 +13,7 @@ import com.obraviva.platform.developments.UnitStageService;
 import com.obraviva.platform.developments.UnitResponse;
 import com.obraviva.platform.progress.ProgressEntryResponse;
 import com.obraviva.platform.progress.ProgressService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -149,20 +145,5 @@ public class FieldWorkService {
             return Integer.compare(Integer.parseInt(digitsA), Integer.parseInt(digitsB));
         }
         return a.compareTo(b);
-    }
-
-    @RestController
-    public static class FieldWorkController {
-
-        private final FieldWorkService service;
-
-        public FieldWorkController(FieldWorkService service) {
-            this.service = service;
-        }
-
-        @GetMapping("/api/my-work")
-        public List<AssignedHouse> myHouses(@AuthenticationPrincipal Jwt jwt) {
-            return service.myHouses(UUID.fromString(jwt.getSubject()));
-        }
     }
 }

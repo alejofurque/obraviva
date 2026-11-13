@@ -20,6 +20,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 /** Novedades de un desarrollo. Ver {@link ActivityService} para los permisos. */
 @RestController
 @RequestMapping("/api/developments/{developmentId}/activity")
@@ -64,9 +66,5 @@ public class ActivityController {
     @GetMapping("/pending-audios")
     public List<PendingAudio> pendingAudios(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID developmentId) {
         return activityService.pendingAudios(userId(jwt), developmentId);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

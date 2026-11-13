@@ -81,7 +81,7 @@ public class ProgressService {
     }
 
     /** Lo que un avance le hizo a su etapa al publicarse: porcentaje y estado, antes y después. */
-    public record StageChange(Integer percentBefore, Integer percentAfter, String statusBefore, String statusAfter) {
+    public record RecordedStageChange(Integer percentBefore, Integer percentAfter, String statusBefore, String statusAfter) {
     }
 
     /**
@@ -90,7 +90,7 @@ public class ProgressService {
      * acceso: recibe las organizaciones resueltas por quien llama.
      */
     @Transactional(readOnly = true)
-    public Map<UUID, StageChange> stageChangesByRoot(UUID developmentId, List<UUID> organizationIds) {
+    public Map<UUID, RecordedStageChange> stageChangesByRoot(UUID developmentId, List<UUID> organizationIds) {
         return progressRepository
                 .findByDevelopmentIdAndOrganizationIdIn(developmentId, organizationIds)
                 .stream()
@@ -99,11 +99,11 @@ public class ProgressService {
     }
 
     /** El cambio de etapa que trajo esta versión; nulo si no tocó la etapa o si es una corrección. */
-    static StageChange stageChangeOf(ProgressEntry entry) {
+    static RecordedStageChange stageChangeOf(ProgressEntry entry) {
         if (entry.getVersion() != 1 || (entry.getStagePercentAfter() == null && entry.getStageStatusAfter() == null)) {
             return null;
         }
-        return new StageChange(
+        return new RecordedStageChange(
                 entry.getStagePercentBefore(),
                 entry.getStagePercentAfter(),
                 entry.getStageStatusBefore() == null ? null : entry.getStageStatusBefore().name(),
@@ -180,21 +180,6 @@ public class ProgressService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
-    public List<ProgressEntryResponse> history(UUID userId, UUID rootId) {
-        List<ProgressEntry> versions = progressRepository
-                .findByRootIdAndOrganizationIdInOrderByVersionAsc(
-                        rootId, membershipService.organizationIdsOf(userId));
-        // Un avance de una casa que el encargado no tiene es, para él, un avance que no existe.
-        if (versions.isEmpty()
-                || !developmentAccess.canAccess(userId, versions.getFirst().getDevelopmentId(), versions.getFirst().getOrganizationId())
-                || !developmentAccess.readableUnits(userId, versions.getFirst().getDevelopmentId(), versions.getFirst().getOrganizationId())
-                        .test(versions.getFirst().getUnitId())) {
-            throw notFound();
-        }
-        return versions.stream().map(ProgressEntryResponse::from).toList();
-    }
-
     @Transactional
     public ProgressEntryResponse create(
             UUID userId, UUID developmentId, CreateProgressEntryRequest request) {
@@ -228,7 +213,7 @@ public class ProgressService {
 
     /** Guarda en el avance el cambio que le hizo a su etapa, para contarlo después ("35% → 50%"). */
     @Transactional
-    public void recordStageChange(UUID entryId, UUID organizationId, StageCatalogService.StageChange change) {
+    public void recordStageChange(UUID entryId, UUID organizationId, StageCatalogService.AppliedStageChange change) {
         progressRepository.findByIdAndOrganizationIdIn(entryId, List.of(organizationId))
                 .ifPresent(entry -> entry.recordStageChange(
                         change.percentBefore(), change.percentAfter(), change.statusBefore(), change.statusAfter()));

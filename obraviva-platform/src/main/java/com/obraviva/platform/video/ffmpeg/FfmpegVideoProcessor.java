@@ -1,5 +1,6 @@
 package com.obraviva.platform.video.ffmpeg;
 
+import com.obraviva.platform.common.process.ProcessRunner;
 import com.obraviva.platform.video.TranscodeResult;
 import com.obraviva.platform.video.VideoConstraints;
 import com.obraviva.platform.video.VideoMetadata;
@@ -20,7 +21,7 @@ import java.util.Map;
 /**
  * Implementación del preprocesamiento con ffmpeg/ffprobe como procesos externos.
  *
- * <p>Criterios fijados en la tarea 2.6b:
+ * <p>Criterios:
  * <ul>
  *   <li>Se transcodifica siempre, aunque el origen ya cumpla los límites: lo que sale
  *       hacia el servicio de reconstrucción es siempre H.264 / yuv420p / MP4.</li>

@@ -1,7 +1,7 @@
 package com.obraviva.platform.media.variants;
 
+import com.obraviva.platform.common.process.ProcessRunner;
 import com.obraviva.platform.media.MediaKind;
-import com.obraviva.platform.video.ffmpeg.ProcessRunner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

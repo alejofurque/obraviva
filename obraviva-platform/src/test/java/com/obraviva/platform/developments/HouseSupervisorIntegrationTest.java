@@ -171,17 +171,17 @@ class HouseSupervisorIntegrationTest {
                 .containsExactly("Frente", "Living y cocina", "Dormitorio principal", "Baño");
 
         JsonNode replaced = json(ok(send(ownerToken, put("/api/units/" + casa1 + "/sectors"), """
-                {"names":["Frente"," Planta  baja ","","Garage"]}""")));
+                {"sectors":[{"name":"Frente","previousName":"Frente"},{"name":" Planta  baja "},{"name":""},{"name":"Garage"}]}""")));
         assertThat(replaced).extracting(node -> node.asString()).containsExactly("Frente", "Planta baja", "Garage");
 
         send(ownerToken, put("/api/units/" + casa1 + "/sectors"), """
-                {"names":["Baño","baño"]}""").andExpect(status().isBadRequest());
+                {"sectors":[{"name":"Baño"},{"name":"baño"}]}""").andExpect(status().isBadRequest());
 
         ok(send(ownerToken, post(teamUrl()), """
                 {"userId":"%s","unitIds":["%s"]}""".formatted(supervisorId, casa1)));
         assertThat(json(ok(send(supervisorToken, get("/api/units/" + casa1 + "/sectors"))))).hasSize(3);
         send(supervisorToken, put("/api/units/" + casa1 + "/sectors"), """
-                {"names":["Frente"]}""").andExpect(status().isForbidden());
+                {"sectors":[{"name":"Frente","previousName":"Frente"}]}""").andExpect(status().isForbidden());
         send(supervisorToken, get("/api/units/" + casa2 + "/sectors")).andExpect(status().isNotFound());
 
         JsonNode view = json(ok(send(ownerToken, get("/api/my-units/" + casa1)))).get("property");

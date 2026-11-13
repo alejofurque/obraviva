@@ -5,6 +5,7 @@ import com.obraviva.platform.auth.UserRepository;
 import com.obraviva.platform.captures3d.CaptureDtos.CreateCaptureFromVideoRequest;
 import com.obraviva.platform.captures3d.CaptureDtos.CreateCaptureRequest;
 import com.obraviva.platform.developments.CreateDevelopmentRequest;
+import com.obraviva.platform.jobs.JobStatus;
 import com.obraviva.platform.jobs.JobType;
 import com.obraviva.platform.jobs.PipelineStep;
 import com.obraviva.platform.jobs.ProcessingJobRepository;
@@ -276,5 +277,55 @@ class CaptureProcessingIntegrationTest {
 
         mockMvc.perform(get(processingUrl()).header("Authorization", "Bearer " + intruderToken))
                 .andExpect(status().isNotFound());
+    }
+
+    // --- Alta desde video: lo que se rechaza ---
+
+    @Test
+    @DisplayName("un archivo que no es video se rechaza con 415 y no crea captura ni trabajo")
+    void nonVideoIsRejected() throws Exception {
+        mockMvc.perform(post("/api/developments/" + developmentId + "/captures/from-video")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JSON.writeValueAsString(new CreateCaptureFromVideoRequest(
+                                LocalDate.of(2026, 9, 1), "Foto suelta", null, null,
+                                "frente.jpg", "image/jpeg"))))
+                .andExpect(status().isUnsupportedMediaType());
+
+        assertThat(captureRepository.count()).isZero();
+        assertThat(jobRepository.count()).isZero();
+    }
+
+    @Test
+    @DisplayName("confirmar sin el video en el almacenamiento es un conflicto y el trabajo no entra a la cola")
+    void confirmWithoutUploadedVideoIsAConflict() throws Exception {
+        UUID captureId = uploadVideo("Subida cortada");
+        when(storageService.exists(anyString())).thenReturn(false);
+
+        mockMvc.perform(post("/api/captures/" + captureId + "/confirm-video")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isConflict());
+
+        assertThat(jobService.findByResource(captureId).orElseThrow().getStatus()).isEqualTo(JobStatus.UPLOADED);
+    }
+
+    @Test
+    @DisplayName("una captura de SPZ no se confirma como video")
+    void spzCaptureIsNotConfirmedAsVideo() throws Exception {
+        String response = mockMvc.perform(post("/api/developments/" + developmentId + "/captures")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JSON.writeValueAsString(new CreateCaptureRequest(
+                                LocalDate.of(2026, 9, 1), "Scaniverse", null, null))))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        UUID captureId = UUID.fromString(JSON.readTree(response).get("captureId").asString());
+
+        mockMvc.perform(post("/api/captures/" + captureId + "/confirm-video")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isConflict());
+
+        assertThat(jobService.findByResource(captureId)).isEmpty();
+        assertThat(captureRepository.findById(captureId).orElseThrow().getStatus()).isEqualTo(CaptureStatus.PENDING);
     }
 }

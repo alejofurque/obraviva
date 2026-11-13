@@ -4,6 +4,7 @@ import com.obraviva.platform.auth.User;
 import com.obraviva.platform.auth.UserRepository;
 import com.obraviva.platform.developments.CreateDevelopmentRequest;
 import com.obraviva.platform.organizations.CreateOrganizationRequest;
+import com.obraviva.platform.support.TestMinio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -34,6 +37,11 @@ class ProgressVersioningIntegrationTest {
     @Container
     @ServiceConnection
     static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
+
+    @DynamicPropertySource
+    static void storage(DynamicPropertyRegistry registry) {
+        TestMinio.register(registry);
+    }
 
     private static final JsonMapper JSON = JsonMapper.builder().build();
     private static final String PASSWORD = "secreto123";
@@ -128,26 +136,6 @@ class ProgressVersioningIntegrationTest {
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].version").value(2))
                 .andExpect(jsonPath("$[0].description").value("Losa del primer piso (corregido)"));
-    }
-
-    @Test
-    void historyKeepsEveryVersion() throws Exception {
-        String created = createEntry("Version uno");
-        UUID entryId = UUID.fromString(JSON.readTree(created).get("id").asString());
-        UUID rootId = UUID.fromString(JSON.readTree(created).get("rootId").asString());
-
-        String v2 = correct(entryId, "Version dos");
-        UUID v2Id = UUID.fromString(JSON.readTree(v2).get("id").asString());
-        correct(v2Id, "Version tres");
-
-        mockMvc.perform(get("/api/progress/" + rootId + "/history")
-                        .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(3))
-                .andExpect(jsonPath("$[0].description").value("Version uno"))
-                .andExpect(jsonPath("$[0].current").value(false))
-                .andExpect(jsonPath("$[2].description").value("Version tres"))
-                .andExpect(jsonPath("$[2].current").value(true));
     }
 
     @Test

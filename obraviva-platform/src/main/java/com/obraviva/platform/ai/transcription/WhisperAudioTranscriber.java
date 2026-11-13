@@ -1,6 +1,6 @@
 package com.obraviva.platform.ai.transcription;
 
-import com.obraviva.platform.video.ffmpeg.ProcessRunner;
+import com.obraviva.platform.common.process.ProcessRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

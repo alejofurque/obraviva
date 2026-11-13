@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api/units/{unitId}")
 public class UnitDetailsController {
@@ -88,9 +90,5 @@ public class UnitDetailsController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID unitId) {
         return detailsService.confirmFrontRender(userId(jwt), unitId);
-    }
-
-    private static UUID userId(Jwt jwt) {
-        return UUID.fromString(jwt.getSubject());
     }
 }

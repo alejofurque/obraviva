@@ -23,7 +23,7 @@ public interface MediaAssetRepository extends JpaRepository<MediaAsset, UUID> {
     /** Fotos y videos publicados de un sector de una casa: lo que impide quitarlo. */
     /** Cuántas fotos disponibles tienen esas versiones de un avance. */
     long countByOrganizationIdAndProgressEntryIdInAndKindAndStatus(
-            UUID organizationId, java.util.Collection<UUID> progressEntryIds, MediaKind kind, MediaStatus status);
+            UUID organizationId, Collection<UUID> progressEntryIds, MediaKind kind, MediaStatus status);
 
     long countByOrganizationIdAndUnitIdAndSectorAndStatus(
             UUID organizationId, UUID unitId, String sector, MediaStatus status);

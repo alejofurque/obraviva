@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
+import static com.obraviva.platform.auth.CurrentUser.userId;
+
 @RestController
 @RequestMapping("/api")
 public class DevelopmentOverviewController {
@@ -23,11 +25,11 @@ public class DevelopmentOverviewController {
 
     @GetMapping("/developments/{developmentId}/overview")
     public DevelopmentOverviewResponse overview(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID developmentId) {
-        return overviewService.overview(UUID.fromString(jwt.getSubject()), developmentId);
+        return overviewService.overview(userId(jwt), developmentId);
     }
 
     @GetMapping("/units/{unitId}/overview")
     public UnitOverviewResponse unitOverview(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID unitId) {
-        return overviewService.unitOverview(UUID.fromString(jwt.getSubject()), unitId);
+        return overviewService.unitOverview(userId(jwt), unitId);
     }
 }

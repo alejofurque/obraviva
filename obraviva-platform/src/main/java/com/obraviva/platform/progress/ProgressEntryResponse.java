@@ -1,6 +1,6 @@
 package com.obraviva.platform.progress;
 
-import com.obraviva.platform.progress.ProgressService.StageChange;
+import com.obraviva.platform.progress.ProgressService.RecordedStageChange;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -25,13 +25,13 @@ public record ProgressEntryResponse(
         boolean current,
         Instant createdAt,
         String authorName,
-        StageChange stageChange) {
+        RecordedStageChange stageChange) {
 
     static ProgressEntryResponse from(ProgressEntry entry) {
         return from(entry, null, ProgressService.stageChangeOf(entry));
     }
 
-    static ProgressEntryResponse from(ProgressEntry entry, String authorName, StageChange stageChange) {
+    static ProgressEntryResponse from(ProgressEntry entry, String authorName, RecordedStageChange stageChange) {
         return new ProgressEntryResponse(
                 entry.getId(),
                 entry.getDevelopmentId(),
